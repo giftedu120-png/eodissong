@@ -9,7 +9,7 @@ import { loadLocation, requestCurrentLocation, saveLocation } from "../location"
 import { mockTravelProvider } from "../providers/mock";
 import type { Mission, UserLocation } from "../providers/types";
 
-const COMPLETED_KEY = "momentrip:completed-missions";
+const COMPLETED_KEY = "eodissong:completed-missions";
 
 export default function ExplorePage() {
   const searchParams = useSearchParams();
@@ -96,7 +96,7 @@ export default function ExplorePage() {
   return (
     <main className="map-page">
       <header className="app-header">
-        <Link href="/" className="brand" aria-label="모먼트립 홈"><span className="brand-mark">○</span> 모먼트립</Link>
+        <Link href="/" className="brand" aria-label="어디쏭 홈"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</Link>
         <div className="point-pill"><span aria-hidden="true">✦</span><b>{points}P</b></div>
       </header>
       <section className="map-toolbar">

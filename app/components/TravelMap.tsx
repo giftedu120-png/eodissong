@@ -65,7 +65,7 @@ export function TravelMap({ center, currentLocation, places = [], missions = [],
 
       if (route) {
         const line = route.path.map((point): [number, number] => [point.lat, point.lng]);
-        L.polyline(line, { color: "#e97055", weight: 6, opacity: 0.9, dashArray: "10 8" }).addTo(map);
+        L.polyline(line, { color: "#139be5", weight: 6, opacity: 0.9, dashArray: "10 8" }).addTo(map);
         L.marker([route.destination.coordinates.lat, route.destination.coordinates.lng], { icon: makeIcon("map-destination-marker", "◆"), title: route.destination.name.ko }).addTo(map).bindTooltip(route.destination.name.ko);
         bounds.push(...line);
       }

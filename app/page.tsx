@@ -102,16 +102,19 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <Link className="brand" href="/" aria-label="여행 발견 홈">
-          <span className="brand-mark">○</span> 모먼트립
+        <Link className="brand" href="/" aria-label="어디쏭 홈">
+          <img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭
         </Link>
         <button className="round-button" aria-label="저장한 장소 보기">♡</button>
       </header>
 
       <section className="hero" aria-labelledby="hero-title">
-        <p className="eyebrow">어디로 떠나볼까요?</p>
-        <h1 id="hero-title">낯선 곳을 발견하는<br /><em>가장 쉬운 방법</em></h1>
-        <p className="hero-copy">사진 한 장, 이름 하나, 지금 내 위치에서 여행이 시작돼요.</p>
+        <div className="hero-message">
+          <p className="eyebrow">부산을 담다, 길을 찾다</p>
+          <h1 id="hero-title">어디로 갈지 궁금할 땐<br /><em>어디쏭</em></h1>
+          <p className="hero-copy">사진 한 장, 이름 하나, 지금 내 위치에서 부산 여행이 시작돼요.</p>
+        </div>
+        <img className="hero-logo" src="/eodissong-logo.png" alt="광안대교와 바다를 품은 어디쏭 로고 — 부산을 담다, 길을 찾다" />
       </section>
 
       <section className="feature-grid" aria-label="여행지 찾기">
@@ -192,7 +195,7 @@ export default function Home() {
         <Link href="/place/gwangalli">추천 장소 보기 <span aria-hidden="true">→</span></Link>
       </section>
 
-      <footer><span className="brand"><span className="brand-mark">○</span> 모먼트립</span><p>발견에서 길찾기, 미션까지 이어지는 여행.</p><small>현재 Mock 데이터로 작동합니다.</small></footer>
+      <footer><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><p>부산을 담고, 나만의 길을 찾는 여행.</p><small>현재 Mock 데이터로 작동합니다.</small></footer>
       <LocationConsentModal open={consentOpen} busy={nearbyState === "loading"} error={locationError} onAgree={useCurrentLocation} onManual={searchRegion} onClose={() => setConsentOpen(false)} />
     </main>
   );

@@ -68,7 +68,7 @@ export default function DirectionsPage() {
 
   return (
     <main className="directions-page">
-      <header className="app-header"><Link href="/" className="brand"><span className="brand-mark">○</span> 모먼트립</Link><Link href="/explore" className="header-link">미션 지도 ✦</Link></header>
+      <header className="app-header"><Link href="/" className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</Link><Link href="/explore" className="header-link">미션 지도 ✦</Link></header>
       <section className="directions-head"><p className="eyebrow">ROUTE GUIDE</p><h1>어디서 출발할까요?</h1><p>현재 위치, 주소 또는 장소를 선택하면 추천 경로를 보여드려요.</p></section>
       <section className="route-inputs">
         <div className="route-field-block"><label htmlFor="route-origin">출발지</label><div className="route-field"><span className="route-dot start" /><input id="route-origin" value={originQuery} onChange={(event) => setOriginQuery(event.target.value)} placeholder={origin?.label ?? "주소 또는 장소 검색"} aria-label="출발지 검색" /><button onClick={() => setConsentOpen(true)}>⌖ 현재 위치</button></div>{originSuggestions.length > 0 && <div className="route-suggestions">{originSuggestions.map((place) => <button key={place.id} onClick={() => chooseOriginPlace(place)}><b>{place.name.ko}</b><small>{place.address}</small></button>)}</div>}</div>

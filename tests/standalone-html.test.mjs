@@ -20,6 +20,13 @@ test('standalone page exposes all main hash routes and detailed result links', (
   assert.match(html, /장소 상세보기/)
 })
 
+test('standalone page uses the Eodissong brand and complete supplied logo', () => {
+  assert.match(html, /<title>어디쏭 \| 부산을 담다, 길을 찾다<\/title>/)
+  assert.match(html, /class="hero-logo" src="eodissong-logo\.png"/)
+  assert.match(html, /alt="광안대교와 바다를 품은 어디쏭 로고/)
+  assert.doesNotMatch(html, /모먼트립/)
+})
+
 test('location is requested only through the consent action', () => {
   assert.equal((html.match(/getCurrentPosition/g) ?? []).length, 1)
   assert.doesNotMatch(html, /watchPosition/)

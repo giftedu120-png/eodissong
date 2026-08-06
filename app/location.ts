@@ -1,6 +1,6 @@
 import type { UserLocation } from "./providers/types";
 
-const LOCATION_SESSION_KEY = "momentrip:last-location";
+const LOCATION_SESSION_KEY = "eodissong:last-location";
 
 export function saveLocation(location: UserLocation) {
   sessionStorage.setItem(LOCATION_SESSION_KEY, JSON.stringify(location));

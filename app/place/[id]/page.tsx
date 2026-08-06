@@ -14,7 +14,7 @@ export default function PlaceDetail() {
 
   return (
     <main className="detail-page">
-      <header className="detail-nav"><Link href="/" aria-label="홈으로 돌아가기">←</Link><span className="brand"><span className="brand-mark">○</span> 모먼트립</span><button aria-label="장소 저장">♡</button></header>
+      <header className="detail-nav"><Link href="/" aria-label="홈으로 돌아가기">←</Link><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><button aria-label="장소 저장">♡</button></header>
       <section className="detail-hero">
         <img src={place.imageUrl} alt={`${place.name.ko} 전경`} />
         <div className="hero-shade" />
@@ -28,7 +28,7 @@ export default function PlaceDetail() {
           <button className="mission-button" onClick={() => router.push(`/explore?mission=${place.id}`)}><span>✦</span><div><small>실제 장소를 지도에서 도전</small><b>AI 여행 미션</b></div><i>→</i></button>
         </section>
       </div>
-      <footer><span className="brand"><span className="brand-mark">○</span> 모먼트립</span><p>발견에서 길찾기, 미션까지 이어지는 여행.</p></footer>
+      <footer><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><p>부산을 담고, 나만의 길을 찾는 여행.</p></footer>
     </main>
   );
 }
