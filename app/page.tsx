@@ -14,14 +14,14 @@ const icon = (value: string) => <span aria-hidden="true">{value}</span>;
 
 function PlaceRow({ place, meta }: { place: Place; meta?: string }) {
   return (
-    <Link className="place-row" href={`/place/${place.id}`}>
+    <a className="place-row" href={`/place/${place.id}`}>
       <img src={place.imageUrl} alt="" />
       <span>
         <strong>{place.name.ko}</strong>
         <small>{meta ?? place.category}</small>
       </span>
       <span className="row-arrow" aria-hidden="true">→</span>
-    </Link>
+    </a>
   );
 }
 
@@ -136,7 +136,7 @@ export default function Home() {
                   <option value="ko">한국어</option><option value="en">English</option>
                 </select>
               </label>
-              <Link className="text-link" href={`/place/${vision.place.id}`}>장소 상세보기 →</Link>
+              <a className="text-link" href={`/place/${vision.place.id}`}>장소 상세보기 →</a>
               <small className="confidence-note">Mock 분석 결과예요. 실제 연결 시 후보와 신뢰도를 함께 제공합니다.</small>
             </div>
           )}
