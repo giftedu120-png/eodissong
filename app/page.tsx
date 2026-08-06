@@ -14,14 +14,16 @@ const icon = (value: string) => <span aria-hidden="true">{value}</span>;
 
 function PlaceRow({ place, meta }: { place: Place; meta?: string }) {
   return (
-    <a className="place-row" href={`/place/${place.id}`}>
-      <img src={place.imageUrl} alt="" />
-      <span>
-        <strong>{place.name.ko}</strong>
-        <small>{meta ?? place.category}</small>
-      </span>
-      <span className="row-arrow" aria-hidden="true">→</span>
-    </a>
+    <div className="place-row">
+      <a className="place-row-main" href={`/place/${place.id}`} aria-label={`${place.name.ko} 상세보기`}>
+        <img src={place.imageUrl} alt="" />
+        <span>
+          <strong>{place.name.ko}</strong>
+          <small>{meta ?? place.category}</small>
+        </span>
+      </a>
+      <a className="row-arrow" href={`/place/${place.id}`} aria-label={`${place.name.ko} 상세 페이지로 이동`}>→</a>
+    </div>
   );
 }
 
@@ -136,7 +138,7 @@ export default function Home() {
                   <option value="ko">한국어</option><option value="en">English</option>
                 </select>
               </label>
-              <a className="text-link" href={`/place/${vision.place.id}`}>장소 상세보기 →</a>
+              <a className="text-link" href={`/place/${vision.place.id}`}><span>장소 상세보기</span><span className="result-arrow" aria-hidden="true">→</span></a>
               <small className="confidence-note">Mock 분석 결과예요. 실제 연결 시 후보와 신뢰도를 함께 제공합니다.</small>
             </div>
           )}
@@ -155,7 +157,7 @@ export default function Home() {
           </label>
           <div className="suggestions" aria-live="polite">
             {suggestions.length > 0 ? suggestions.map((place) => <PlaceRow key={place.id} place={place} />) : query ? <p className="empty">검색 결과가 없어요. 다른 이름을 입력해보세요.</p> : <>
-              <span className="suggestion-label">지금 많이 찾는 곳</span>
+              <span className="suggestion-label">지금 많이 방문하는 장소</span>
               {mockTravelProvider.featured().slice(0, 2).map((place) => <PlaceRow key={place.id} place={place} />)}
             </>}
           </div>

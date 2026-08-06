@@ -6,10 +6,12 @@ const homeSource = await readFile(new URL("../app/page.tsx", import.meta.url), "
 
 test("photo analysis result uses a full document link to place detail", () => {
   assert.match(homeSource, /<a className="text-link" href=\{`\/place\/\$\{vision\.place\.id\}`\}>/);
+  assert.match(homeSource, /<span className="result-arrow"/);
 });
 
-test("name search results use full document links to place detail", () => {
-  assert.match(homeSource, /<a className="place-row" href=\{`\/place\/\$\{place\.id\}`\}>/);
+test("recommended and search result arrows are explicit place detail links", () => {
+  assert.match(homeSource, /<a className="row-arrow" href=\{`\/place\/\$\{place\.id\}`\}/);
+  assert.match(homeSource, /지금 많이 방문하는 장소/);
 });
 
 test("the affected detail routes are implemented by the dynamic place page", async () => {
