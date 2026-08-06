@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { ChangeEvent, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LocationConsentModal } from "./components/LocationConsentModal";
+import { requestCurrentLocation, saveLocation } from "./location";
 import { mockTravelProvider } from "./providers/mock";
 import type { Locale, Place, VisionResult } from "./providers/types";
 
@@ -23,6 +26,7 @@ function PlaceRow({ place, meta }: { place: Place; meta?: string }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [photoName, setPhotoName] = useState("");
   const [photoPreview, setPhotoPreview] = useState("");
@@ -32,6 +36,8 @@ export default function Home() {
   const [nearbyState, setNearbyState] = useState<NearbyState>("idle");
   const [nearby, setNearby] = useState<Place[]>([]);
   const [region, setRegion] = useState("");
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   const suggestions = useMemo(
     () => (query.trim() ? mockTravelProvider.searchPlaces(query).slice(0, 4) : []),
@@ -59,25 +65,36 @@ export default function Home() {
   };
 
   const requestNearby = () => {
-    setNearbyState("loading");
-    if (!navigator.geolocation) {
-      setNearbyState("denied");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setNearby(mockTravelProvider.getNearby(coords.latitude, coords.longitude));
-        setNearbyState("ready");
-      },
-      (error) => setNearbyState(error.code === error.PERMISSION_DENIED ? "denied" : "error"),
-      { enableHighAccuracy: false, timeout: 7000 },
-    );
+    setLocationError("");
+    setConsentOpen(true);
   };
 
-  const searchRegion = () => {
-    const results = mockTravelProvider.searchByRegion(region);
-    setNearby(results);
+  const useCurrentLocation = async () => {
+    setNearbyState("loading");
+    try {
+      const location = await requestCurrentLocation();
+      saveLocation(location);
+      setNearby(mockTravelProvider.getNearby(location.lat, location.lng));
+      setNearbyState("ready");
+      setConsentOpen(false);
+      router.push("/explore");
+    } catch {
+      setNearbyState("denied");
+      setLocationError("위치 권한이 거부되었거나 현재 위치를 가져오지 못했습니다. 지역이나 주소를 직접 입력해주세요.");
+    }
+  };
+
+  const searchRegion = (value = region) => {
+    const location = mockTravelProvider.geocode(value);
+    if (!location) {
+      setLocationError("지원하는 지역이나 장소를 찾지 못했습니다. 부산, 서울 또는 등록된 명소 이름을 입력해주세요.");
+      return;
+    }
+    saveLocation(location);
+    setNearby(mockTravelProvider.getNearby(location.lat, location.lng));
     setNearbyState("ready");
+    setConsentOpen(false);
+    router.push("/explore");
   };
 
   return (
@@ -157,13 +174,13 @@ export default function Home() {
               <b>위치를 확인할 수 없어요</b>
               <p>괜찮아요. 원하는 지역을 직접 입력해주세요.</p>
               <label className="search-field"><span aria-hidden="true">⌖</span><input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="예: 부산, 해운대" aria-label="지역 검색" /></label>
-              <button className="secondary-button" onClick={searchRegion} disabled={!region.trim()}>지역으로 찾기</button>
+              <button className="secondary-button" onClick={() => searchRegion()} disabled={!region.trim()}>지역으로 찾기</button>
             </div>
           )}
           {nearbyState === "ready" && <div className="suggestions nearby-results">
             {nearby.length ? nearby.map((place) => <PlaceRow key={place.id} place={place} meta={place.distance} />) : <p className="empty">이 지역의 Mock 명소가 아직 없어요.</p>}
           </div>}
-          {nearbyState !== "ready" && <button className="primary-button coral" onClick={requestNearby} disabled={nearbyState === "loading"}>⌖ 현재 위치로 찾기</button>}
+          {nearbyState !== "ready" && <button className="primary-button coral" onClick={requestNearby} disabled={nearbyState === "loading"}>⌖ 주변 명소 보기</button>}
           <small className="privacy-note">위치는 명소 검색에만 사용되며 저장되지 않아요.</small>
         </article>
       </section>
@@ -174,6 +191,7 @@ export default function Home() {
       </section>
 
       <footer><span className="brand"><span className="brand-mark">○</span> 모먼트립</span><p>발견에서 길찾기, 미션까지 이어지는 여행.</p><small>현재 Mock 데이터로 작동합니다.</small></footer>
+      <LocationConsentModal open={consentOpen} busy={nearbyState === "loading"} error={locationError} onAgree={useCurrentLocation} onManual={searchRegion} onClose={() => setConsentOpen(false)} />
     </main>
   );
 }
