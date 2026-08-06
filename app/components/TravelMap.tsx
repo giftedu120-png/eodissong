@@ -71,7 +71,8 @@ export function TravelMap({ center, currentLocation, places = [], missions = [],
       }
 
       facilities.forEach((facility) => {
-        L.marker([facility.coordinates.lat, facility.coordinates.lng], { icon: makeIcon("map-facility-marker", facilitySymbol[facility.kind]), title: facility.name }).addTo(map).bindTooltip(`${facility.name} · +${facility.detourKm.toFixed(2)}km`);
+        const distanceLabel = facility.distanceKm === undefined ? `+${facility.detourKm.toFixed(2)}km 우회` : `${facility.distanceKm.toFixed(1)}km`;
+        L.marker([facility.coordinates.lat, facility.coordinates.lng], { icon: makeIcon("map-facility-marker", facilitySymbol[facility.kind]), title: facility.name }).addTo(map).bindTooltip(`${facility.name} · ${distanceLabel}`);
         bounds.push([facility.coordinates.lat, facility.coordinates.lng]);
       });
 

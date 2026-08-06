@@ -27,6 +27,8 @@ export interface Facility {
   kind: FacilityKind;
   coordinates: Coordinates;
   detourKm: number;
+  distanceKm?: number;
+  address?: string;
 }
 
 export interface RouteResult {
@@ -57,6 +59,7 @@ export interface PlaceProvider {
   getPlace(id: string): Place | undefined;
   featured(): Place[];
   geocode(query: string): UserLocation | undefined;
+  getNearbyFacilities(coordinates: Coordinates, limit?: number): Facility[];
 }
 
 export interface VisionProvider { analyzeImage(fileName: string): Promise<VisionResult> }

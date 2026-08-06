@@ -33,7 +33,8 @@ export default function ExplorePage() {
   }, [requestedPlace]);
 
   const missions = useMemo(() => origin ? mockTravelProvider.getMissions(origin) : [], [origin]);
-  const nearbyPlaces = useMemo(() => origin ? mockTravelProvider.getNearby(origin.lat, origin.lng).slice(0, 6) : [], [origin]);
+  const nearbyPlaces = useMemo(() => origin ? mockTravelProvider.getNearby(origin.lat, origin.lng).slice(0, 12) : [], [origin]);
+  const nearbyFacilities = useMemo(() => selected ? mockTravelProvider.getNearbyFacilities(selected.place.coordinates, 4) : [], [selected]);
   const points = useMemo(() => missions.filter((mission) => completedIds.includes(mission.id)).reduce((sum, mission) => sum + mission.points, 0), [completedIds, missions]);
 
   useEffect(() => {
@@ -105,11 +106,11 @@ export default function ExplorePage() {
 
       {origin ? (
         <section className="mission-map-shell">
-          <TravelMap center={center} currentLocation={origin.source === "geolocation" ? origin : null} missions={missions} completedMissionIds={completedIds} selectedMissionId={selected?.id} onMissionSelect={selectMission} />
+          <TravelMap center={center} currentLocation={origin.source === "geolocation" ? origin : null} missions={missions} completedMissionIds={completedIds} selectedMissionId={selected?.id} facilities={nearbyFacilities} onMissionSelect={selectMission} />
           <div className="map-legend"><span><i className="legend-dot user" />현재 위치</span><span><i className="legend-dot mission" />미션</span><span><i className="legend-dot done" />완료</span></div>
           <aside className="nearby-rail" aria-label="가까운 미션 목록">
             <b>가까운 미션</b>
-            {missions.slice(0, 4).map((mission) => <button key={mission.id} className={selected?.id === mission.id ? "active" : ""} onClick={() => selectMission(mission)}><span>{completedIds.includes(mission.id) ? "✓" : "✦"}</span><div><strong>{mission.place.name.ko}</strong><small>{mission.distanceKm.toFixed(1)}km · {mission.points}P</small></div></button>)}
+            {missions.slice(0, 8).map((mission) => <button key={mission.id} className={selected?.id === mission.id ? "active" : ""} onClick={() => selectMission(mission)}><span>{completedIds.includes(mission.id) ? "✓" : "✦"}</span><div><strong>{mission.place.name.ko}</strong><small>{mission.distanceKm.toFixed(1)}km · {mission.points}P</small></div></button>)}
           </aside>
           {selected && (
             <section className="mission-sheet" aria-label="선택한 미션">
@@ -120,6 +121,10 @@ export default function ExplorePage() {
                 <h2>{selected.place.name.ko}</h2>
                 <p className="place-summary">{selected.place.description.ko}</p>
                 <div className="mission-task"><span aria-hidden="true">✦</span><div><small>YOUR MISSION</small><b>{selected.title}</b><p>{selected.description}</p></div></div>
+                <div className="nearby-cafes">
+                  <div className="nearby-cafes-title"><div><small>NEARBY CAFE</small><b>이 명소 근처에서 쉬어가기</b></div><span>지도에 표시됨</span></div>
+                  {nearbyFacilities.map((facility) => <div className="nearby-cafe-row" key={facility.id}><span aria-hidden="true">☕</span><div><b>{facility.name}</b><small>{facility.address}</small></div><em>{facility.distanceKm?.toFixed(1)}km</em></div>)}
+                </div>
                 {successMessage && selectedCompleted && <p className="mission-success" role="status">✓ {successMessage}</p>}
                 <div className="mission-actions">
                   <Link href={`/directions?to=${selected.place.id}`} className="secondary-button">➜ 길찾기</Link>
