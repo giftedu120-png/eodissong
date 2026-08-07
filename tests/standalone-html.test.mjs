@@ -147,6 +147,8 @@ test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
 })
 
 test('nearby results distinguish the current location from recommended attractions', () => {
+  assert.match(html, /<h1>내 주변 부산 여행 명소<\/h1>/)
+  assert.doesNotMatch(html, /<h1>내 주변 부산 여행 미션<\/h1>/)
   assert.match(html, /<b>내 위치 · \$\{state\.location\.label\}<\/b>/)
   assert.match(html, /class="recommended-label">&lt;추천된 주변 명소&gt;/)
   assert.match(html, /class="map-marker \$\{extra\}"/)
