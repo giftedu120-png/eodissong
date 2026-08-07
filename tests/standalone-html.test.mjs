@@ -100,6 +100,36 @@ test('standalone header offers five persistent whole-page languages', () => {
   assert.match(html, /header \.points\{display:inline-flex/)
 })
 
+test('header login gates points and opens a local top-ten ranking', () => {
+  const seedLiteral = html.match(/const rankingSeed=(\[[\s\S]*?\]);\s+const currentAccount=/)[1]
+  const seed = new Function(`return ${seedLiteral}`)()
+
+  assert.equal(seed.length, 10)
+  assert.match(html, /id="accountButton"[^>]*aria-haspopup="dialog"/)
+  assert.match(html, /id="headerAccount">로그인<\/b>/)
+  assert.doesNotMatch(html, /id="headerPoints"/)
+  assert.match(html, /\.account-button\{width:78px;height:36px/)
+  assert.match(html, /const accountStorageKey='eodissong:user'/)
+  assert.match(html, /function updatePoints\(\).*currentAccount\(\)/)
+  assert.match(html, /label\.innerHTML=`<span aria-hidden="true">✦<\/span> \$\{totalPoints\(\)\}P`/)
+  assert.match(html, /accountButton\.onclick=\(\)=>currentAccount\(\)\?showRankingModal\(\):showLoginModal\(\)/)
+  assert.match(html, /id="memberLogin"/)
+  assert.match(html, /id="memberName"/)
+  assert.match(html, /id="memberId"/)
+  assert.match(html, /id="guestLogin"/)
+  assert.match(html, /id="guestName"/)
+  assert.doesNotMatch(html, /type="password"/)
+  assert.match(html, /entries\.push\(\{id:`current-/)
+  assert.match(html, /\.sort\(\(a,b\)=>b\.points-a\.points/)
+  assert.match(html, /\.slice\(0,10\)/)
+  assert.match(html, /const ranking=rankingEntries\(\),top=ranking\.slice\(0,3\),rest=ranking\.slice\(3,10\)/)
+  assert.match(html, /ranking-bar-row rank-\$\{index\+1\}/)
+  assert.match(html, /rank-1 \.ranking-bar\{width:100%;background:#d7aa16/)
+  assert.match(html, /rank-2 \.ranking-bar\{width:86%;background:#aab3bf/)
+  assert.match(html, /rank-3 \.ranking-bar\{width:72%;background:#985428/)
+  assert.match(html, /포인트 랭킹 1위부터 3위까지 상품을 제공합니다\./)
+})
+
 test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
   assert.match(html, /04 · AI MISSION/)
   assert.match(html, /href="#\/explore">미션 지도 보기/)
