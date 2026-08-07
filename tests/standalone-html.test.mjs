@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 
 const html = await readFile(new URL('../docs/index.html', import.meta.url), 'utf8')
+const cookieRunFont = await readFile(new URL('../docs/fonts/CookieRun-Bold.ttf', import.meta.url))
 const inlineScripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1].trim())
   .filter(Boolean)
@@ -25,6 +26,14 @@ test('standalone page uses the Eodissong brand and complete supplied logo', () =
   assert.match(html, /class="hero-logo" src="eodissong-logo\.png"/)
   assert.match(html, /alt="광안대교와 바다를 품은 어디쏭 로고/)
   assert.doesNotMatch(html, /모먼트립/)
+})
+
+test('home brand uses the supplied CookieRun bold font', () => {
+  assert.ok(cookieRunFont.length > 2_000_000)
+  assert.match(html, /@font-face\{font-family:'CookieRun Black';src:url\('fonts\/CookieRun-Bold\.ttf'\)/)
+  assert.match(html, /\.brand\{[^}]*font-family:'CookieRun Black'/)
+  assert.match(html, /\.hero h1 em\{font-family:'CookieRun Black'/)
+  assert.match(html, /font-style:normal;font-weight:900/)
 })
 
 test('location is requested only through the consent action', () => {
@@ -95,7 +104,7 @@ test('standalone header offers five persistent whole-page languages', () => {
   assert.match(html, /중국어\(Chinese\)/)
   assert.match(html, /대만어\(Taiwanese\)/)
   assert.match(html, /eodissong:locale/)
-  assert.match(html, /new MutationObserver\(\(\)=>translateTree\(document\.body\)\)/)
+  assert.match(html, /new MutationObserver\(\(\)=>\{translateTree\(document\.body\);decorateAiCourseLabels\(\)\}\)/)
   assert.match(html, /'accept-language':currentLocale/)
   assert.match(html, /header \.points\{display:inline-flex/)
 })
@@ -142,6 +151,13 @@ test('nearby results distinguish the current location from recommended attractio
   assert.match(html, /class="recommended-label">&lt;추천된 주변 명소&gt;/)
   assert.match(html, /class="map-marker \$\{extra\}"/)
   assert.match(html, /mapIcon\('●','user'\)/)
+})
+
+test('all map origins use the shared red starting pin', () => {
+  assert.match(html, /\.map-marker\.user\{background:#e53935\}/)
+  assert.match(html, /mapIcon\('●','user'\)/)
+  assert.match(html, /mapIcon\('1','user'\)/)
+  assert.ok((html.match(/mapIcon\('●','user'\)/g) ?? []).length >= 2)
 })
 
 test('course builder separates waypoints and final destination with exact-address search', () => {
@@ -196,6 +212,11 @@ test('course result adds removable AI recommendations and numbers every stop', (
   assert.match(html, /<span>\$\{index\+2\}<\/span>/)
   assert.match(html, /\$\{stop\.type==='cafe'\?' ☕':''\}<\/b>/)
   assert.match(html, /stop\.aiRecommended\?' · AI 추천':''/)
+  assert.match(html, /function decorateAiCourseLabels\(\)/)
+  assert.match(html, /\.course-ai-remove:not\(\[data-ai-labeled\]\)/)
+  assert.match(html, /label\.textContent=translateText\('AI 추천'\)/)
+  assert.match(html, /button\.before\(label\)/)
+  assert.match(html, /\.course-ai-label\{[^}]*font-size:12px;font-weight:900/)
 })
 
 test('course result exposes detailed per-leg guidance with previous and next navigation', () => {
