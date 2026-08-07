@@ -155,6 +155,14 @@ test('course builder optimizes waypoint order by road distance and keeps final d
   assert.match(html, /destination-stop/)
 })
 
+test('course builder can reset every configured course point', () => {
+  assert.match(html, /class="origin-title">길찾기 출발지/)
+  assert.match(html, /\.origin-editor>\.origin-title\{[^}]*font-size:15px/)
+  assert.match(html, /id="resetCourseSettings">설정 코스 초기화/)
+  assert.match(html, /function resetCourseSettings\(\)\{sessionStorage\.removeItem\('eodissong:location'\);state\.location=null;state\.courseStops=\[\];state\.courseDestination=null;state\.courseCafe=false;state\.courseResult=null;state\.courseMessage='';renderCourse\(\)\}/)
+  assert.match(html, /document\.querySelector\('#resetCourseSettings'\)\.onclick=resetCourseSettings/)
+})
+
 test('shortest-order optimizer can reorder waypoints while preserving the fixed end', () => {
   const source = inlineScripts[0].match(/function optimalWaypointOrder[\s\S]*?return order}/)?.[0]
   assert.ok(source)
