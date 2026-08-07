@@ -81,7 +81,7 @@ test('all 30 places have translations and both photo-analysis prompt types', () 
   const placeBlock = html.match(/const places=\[([\s\S]*?)\]\.map\(p=>/)[1]
   const placeRows = new Function(`return [${placeBlock}]`)()
   const ids = placeRows.map((place) => place[0])
-  const addedLiteral = html.match(/const additionalPlaceRows=(\[[\s\S]*?\]);\s+const translationRows=/)[1]
+  const addedLiteral = html.match(/const additionalPlaceRows=(\[[\s\S]*?\]);\s+const verifiedDescriptionRows=/)[1]
   const addedTranslations = new Function(`return ${addedLiteral}`)()
   const visionLiteral = html.match(/const visionPrompts=(\{[\s\S]*?\});/)[1]
   const missionLiteral = html.match(/const missionVisionPrompts=(\{[\s\S]*?\});/)[1]
@@ -95,6 +95,29 @@ test('all 30 places have translations and both photo-analysis prompt types', () 
   assert.match(html, /등록된 30개 후보 간 상대 점수/)
 })
 
+test('all 30 registered attractions use expanded verified descriptions in five languages', () => {
+  const placeBlock = html.match(/const places=\[([\s\S]*?)\]\.map\(p=>/)[1]
+  const placeRows = new Function(`return [${placeBlock}]`)()
+  const verifiedLiteral = html.match(/const verifiedDescriptionRows=(\[[\s\S]*?\]);\s+const verifiedDescriptions=/)[1]
+  const verifiedRows = new Function(`return ${verifiedLiteral}`)()
+
+  assert.equal(verifiedRows.length, 30)
+  assert.deepEqual(verifiedRows.map(([id]) => id).sort(), placeRows.map(([id]) => id).sort())
+  for (const [id, descriptions] of verifiedRows) {
+    assert.equal(descriptions.length, 5, `${id} needs five translated descriptions`)
+    assert.ok(descriptions[0].length >= 80, `${id} needs a substantial Korean description`)
+    assert.ok(descriptions.every((description) => description.trim().length >= 50), `${id} has a short translated description`)
+  }
+  assert.match(html, /description:verifiedDescriptions\[p\[0\]\]\|\|p\[4\]/)
+  assert.match(html, /\.\.\.verifiedDescriptionRows\.map\(\(\[,row\]\)=>row\)/)
+})
+
+test('AI mission introduction omits the stamp collection wording', () => {
+  assert.match(html, /실제 부산 명소에서 사진 미션을 수행하고 포인트를 모아보세요\./)
+  assert.doesNotMatch(html, /스탬프를/)
+  assert.doesNotMatch(html, /collect points and stamps/i)
+})
+
 test('standalone header offers five persistent whole-page languages', () => {
   assert.doesNotMatch(html, /id="missionNav"/)
   assert.match(html, /id="languageSelect"/)
@@ -104,7 +127,7 @@ test('standalone header offers five persistent whole-page languages', () => {
   assert.match(html, /중국어\(Chinese\)/)
   assert.match(html, /대만어\(Taiwanese\)/)
   assert.match(html, /eodissong:locale/)
-  assert.match(html, /new MutationObserver\(\(\)=>\{translateTree\(document\.body\);decorateAiCourseLabels\(\)\}\)/)
+  assert.match(html, /new MutationObserver\(\(\)=>translateTree\(document\.body\)\)/)
   assert.match(html, /'accept-language':currentLocale/)
   assert.match(html, /header \.points\{display:inline-flex/)
 })
@@ -214,11 +237,11 @@ test('course result adds removable AI recommendations and numbers every stop', (
   assert.match(html, /<span>\$\{index\+2\}<\/span>/)
   assert.match(html, /\$\{stop\.type==='cafe'\?' ☕':''\}<\/b>/)
   assert.match(html, /stop\.aiRecommended\?' · AI 추천':''/)
-  assert.match(html, /function decorateAiCourseLabels\(\)/)
-  assert.match(html, /\.course-ai-remove:not\(\[data-ai-labeled\]\)/)
-  assert.match(html, /label\.textContent=translateText\('AI 추천'\)/)
-  assert.match(html, /button\.before\(label\)/)
-  assert.match(html, /\.course-ai-label\{[^}]*font-size:12px;font-weight:900/)
+  assert.doesNotMatch(html, /function decorateAiCourseLabels\(\)/)
+  assert.doesNotMatch(html, /\.course-ai-remove:not\(\[data-ai-labeled\]\)/)
+  assert.doesNotMatch(html, /\.course-ai-label\{/)
+  assert.doesNotMatch(html, /button\.before\(label\)/)
+  assert.match(html, /\.course-route-list li\{grid-template-columns:25px minmax\(0,1fr\) auto\}/)
 })
 
 test('course result exposes detailed per-leg guidance with previous and next navigation', () => {
