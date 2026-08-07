@@ -50,3 +50,10 @@ test('standalone directions use road geometry and never draw the old straight-li
   assert.match(html, /OpenStreetMap 도로망을 따른 자동차 경로/)
   assert.doesNotMatch(html, /L\.polyline\(\[\[state\.location\.lat/)
 })
+
+test('standalone mobile uploads provide separate camera and gallery inputs', () => {
+  assert.match(html, /id="photoCamera" type="file" accept="image\/\*" capture="environment"/)
+  assert.match(html, /id="photoFile" type="file" accept="image\/\*">/)
+  assert.match(html, /id="missionCamera" type="file" accept="image\/\*" capture="environment"/)
+  assert.match(html, /id="missionFile" type="file" accept="image\/\*">/)
+})

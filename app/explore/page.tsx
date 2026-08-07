@@ -128,7 +128,7 @@ export default function ExplorePage() {
                 {successMessage && selectedCompleted && <p className="mission-success" role="status">✓ {successMessage}</p>}
                 <div className="mission-actions">
                   <Link href={`/directions?to=${selected.place.id}`} className="secondary-button">➜ 길찾기</Link>
-                  <label className={`primary-button coral ${selectedCompleted ? "disabled" : ""}`}>{selectedCompleted ? "✓ 완료된 미션" : "▣ 사진 촬영 또는 업로드"}<input type="file" accept="image/*" capture="environment" onChange={completeMission} disabled={selectedCompleted} /></label>
+                  {selectedCompleted ? <span className="primary-button disabled">✓ 완료된 미션</span> : <div className="mission-upload-options" aria-label="미션 사진 선택 방법"><label className="primary-button coral">📷 촬영<input type="file" accept="image/*" capture="environment" onChange={completeMission} /></label><label className="primary-button coral-light">▣ 파일 업로드<input type="file" accept="image/*" onChange={completeMission} /></label></div>}
                 </div>
                 {selectedCompleted && missions.some((mission) => !completedIds.includes(mission.id)) && <button className="next-mission" onClick={selectNextMission}>다음 미션 추천 →</button>}
               </div>

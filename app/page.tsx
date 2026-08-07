@@ -124,10 +124,13 @@ export default function Home() {
             <div><span className="step">01</span><h2>사진으로 찾기</h2></div>
           </div>
           <p>눈앞의 장소가 궁금하다면 사진을 찍어보세요.</p>
-          <label className="upload-zone">
+          <div className="upload-zone" aria-live="polite">
             {photoPreview ? <img src={photoPreview} alt="업로드한 사진 미리보기" /> : <><b>{icon("＋")} 사진 촬영 또는 업로드</b><small>JPG, PNG · 최대 10MB</small></>}
-            <input type="file" accept="image/*" capture="environment" onChange={choosePhoto} />
-          </label>
+          </div>
+          <div className="upload-actions" aria-label="사진 선택 방법">
+            <label className="upload-option">📷 사진 촬영<input type="file" accept="image/*" capture="environment" onChange={choosePhoto} /></label>
+            <label className="upload-option">▣ 파일 업로드<input type="file" accept="image/*" onChange={choosePhoto} /></label>
+          </div>
           <button className="primary-button" disabled={!photoName || analyzing} onClick={analyzePhoto}>
             {analyzing ? "사진을 분석하고 있어요…" : "사진 분석하기"}
           </button>
