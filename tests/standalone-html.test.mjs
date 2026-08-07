@@ -34,15 +34,56 @@ test('location is requested only through the consent action', () => {
   assert.match(html, /enableHighAccuracy:true,timeout:10000,maximumAge:300000/)
 })
 
-test('Busan seed data and nearby cafes are bundled', () => {
+test('30 Busan attractions and at least two mapped nearby cafes each are bundled', () => {
   const placeBlock = html.match(/const places=\[([\s\S]*?)\]\.map\(p=>/)[1]
-  const ids = [...placeBlock.matchAll(/^\s+\['([^']+)'/gm)].map((match) => match[1])
-  assert.equal(ids.length, 13)
-  assert.match(html, /const cafes=\[/)
-  assert.match(html, /모모스커피 영도/)
-  assert.match(html, /테라로사 커피 F1963/)
-  assert.match(html, /할리스 광안해변점/)
-  assert.match(html, /slice\(0,6\)/)
+  const placeRows = new Function(`return [${placeBlock}]`)()
+  const ids = placeRows.map((place) => place[0])
+  const cafeLiteral = html.match(/const cafes=(\[[\s\S]*?\]);\s+const placeCafeIds=/)[1]
+  const cafeRows = new Function(`return ${cafeLiteral}`)()
+  const cafeMapLiteral = html.match(/const placeCafeIds=(\{[\s\S]*?\});/)[1]
+  const cafeMap = new Function(`return ${cafeMapLiteral}`)()
+  const cafesById = new Map(cafeRows.map((cafe) => [cafe.id, cafe]))
+  const radians = (value) => value * Math.PI / 180
+  const distanceKm = (place, cafe) => {
+    const dLat = radians(cafe.lat - place[6])
+    const dLng = radians(cafe.lng - place[7])
+    const value = Math.sin(dLat / 2) ** 2 + Math.cos(radians(place[6])) * Math.cos(radians(cafe.lat)) * Math.sin(dLng / 2) ** 2
+    return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value))
+  }
+
+  assert.equal(ids.length, 30)
+  assert.equal(new Set(ids).size, 30)
+  assert.deepEqual(Object.keys(cafeMap).sort(), [...ids].sort())
+  for (const place of placeRows) {
+    const cafeIds = cafeMap[place[0]]
+    assert.ok(cafeIds.length >= 2, `${place[1]} needs at least two cafes`)
+    assert.equal(new Set(cafeIds).size, cafeIds.length, `${place[1]} has duplicate cafe mappings`)
+    for (const cafeId of cafeIds) {
+      const cafe = cafesById.get(cafeId)
+      assert.ok(cafe, `${place[1]} references missing cafe ${cafeId}`)
+      assert.ok(distanceKm(place, cafe) <= 12, `${cafe.name} is not reasonably near ${place[1]}`)
+    }
+  }
+  assert.match(html, /const nearbyCafesFor=/)
+  assert.match(html, /const near=nearbyCafesFor\(p\)/)
+})
+
+test('all 30 places have translations and both photo-analysis prompt types', () => {
+  const placeBlock = html.match(/const places=\[([\s\S]*?)\]\.map\(p=>/)[1]
+  const placeRows = new Function(`return [${placeBlock}]`)()
+  const ids = placeRows.map((place) => place[0])
+  const addedLiteral = html.match(/const additionalPlaceRows=(\[[\s\S]*?\]);\s+const translationRows=/)[1]
+  const addedTranslations = new Function(`return ${addedLiteral}`)()
+  const visionLiteral = html.match(/const visionPrompts=(\{[\s\S]*?\});/)[1]
+  const missionLiteral = html.match(/const missionVisionPrompts=(\{[\s\S]*?\});/)[1]
+  const visionIds = Object.keys(new Function(`return ${visionLiteral}`)())
+  const missionIds = Object.keys(new Function(`return ${missionLiteral}`)())
+
+  assert.equal(addedTranslations.length, 17)
+  assert.deepEqual(addedTranslations.map((row) => row[0][0]), placeRows.slice(13).map((place) => place[1]))
+  assert.deepEqual(visionIds.sort(), [...ids].sort())
+  assert.deepEqual(missionIds.sort(), [...ids].sort())
+  assert.match(html, /등록된 30개 후보 간 상대 점수/)
 })
 
 test('standalone header offers five persistent whole-page languages', () => {
@@ -121,6 +162,20 @@ test('standalone directions use road geometry and never draw the old straight-li
   assert.match(html, /geometries=geojson&steps=true/)
   assert.match(html, /OpenStreetMap 도로망을 따른 자동차 경로/)
   assert.doesNotMatch(html, /L\.polyline\(\[\[state\.location\.lat/)
+})
+
+test('route estimates and both image-analysis flows disclose timing uncertainty', () => {
+  const courseSource = html.slice(html.indexOf('function renderCourseResult'), html.indexOf('async function renderDirections'))
+  const directionsSource = html.slice(html.indexOf('async function renderDirections'), html.indexOf('const baseDirectionsRenderer'))
+  const homeSource = html.slice(html.indexOf('function renderHome'), html.indexOf('function showMissionResetModal'))
+  const missionSource = html.slice(html.indexOf('function showMission(p,map)'), html.indexOf('async function reviewMissionPhoto'))
+
+  assert.match(courseSource, /이는 예상 시간이며, 실제와 맞지 않을수도 있습니다/)
+  assert.match(directionsSource, /이는 예상 시간이며, 실제와 맞지 않을수도 있습니다/)
+  assert.match(homeSource, /사진 분석에는 일정 시간이 소요됩니다/)
+  assert.match(missionSource, /사진 분석에는 일정 시간이 소요됩니다/)
+  assert.match(html, /id="missionReviewMessage"/)
+  assert.match(html, /querySelector\('#missionReviewMessage'\)/)
 })
 
 test('standalone mobile uploads provide separate camera and gallery inputs', () => {

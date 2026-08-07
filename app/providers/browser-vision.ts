@@ -18,6 +18,23 @@ export const VISION_PLACE_PROMPTS: Record<string, string> = {
   dongbaek: "Dongbaekseom in Busan with a wooded coastal path, Nurimaru APEC House, rocky shore, and Gwangan Bridge view",
   "busan-citizens-park": "Busan Citizens Park with broad green lawns, walking paths, trees, fountains, and modern city buildings",
   f1963: "F1963 in Busan with a renovated industrial wire factory, exposed concrete and steel, bamboo garden, books, and art",
+  "haedong-yonggungsa": "Haedong Yonggungsa coastal Buddhist temple in Busan with traditional tiled roofs on rocky cliffs above the sea",
+  "busan-x-the-sky": "BUSAN X the SKY and Haeundae LCT Landmark Tower beside Haeundae Beach with a very tall modern skyscraper",
+  cheongsapo: "Cheongsapo Daritdol Observatory in Busan with a long blue skywalk above the rocky sea and fishing village",
+  "blueline-park": "Haeundae Blue Line Park with colorful sky capsule trains or beach train running beside the ocean",
+  "cinema-center": "Busan Cinema Center with its huge curved cantilever roof, outdoor plaza, and colorful architectural lighting",
+  "maritime-museum": "National Maritime Museum of Korea in Busan with maritime exhibits, ships, aquarium, and ocean displays",
+  igidae: "Igidae coastal trail in Busan with forest paths, rocky shoreline, blue sea, and Gwangan Bridge views",
+  hwangnyeongsan: "panoramic Busan city skyline viewed from Hwangnyeongsan mountain and beacon mound",
+  "busan-museum": "Busan Museum building or Korean historical artifacts displayed inside the museum",
+  "un-memorial": "United Nations Memorial Cemetery in Busan with rows of graves, national flags, green lawns, and memorial walls",
+  "gukje-market": "Gukje Market in Busan with dense traditional market alleys, Korean signs, shops, and street vendors",
+  "biff-square": "BIFF Square in Busan with film handprints, movie street signs, theaters, and busy food stalls",
+  "bosu-book-street": "Bosu-dong Bookstore Alley in Busan with narrow stairs, old bookstores, and stacks of books",
+  "bupyeong-market": "Bupyeong Kkangtong Market in Busan with covered market aisles, street food stalls, and night market lights",
+  "nakdong-eco-center": "Nakdong Estuary Eco-Center and Eulsukdo wetland in Busan with migratory birds, reeds, river, and observation facilities",
+  "samnak-eco-park": "Samnak Ecological Park beside the Nakdong River in Busan with wetlands, reeds, bicycle paths, and open grass",
+  beomeosa: "Beomeosa Buddhist temple in Busan with traditional colorful wooden halls, stone stairs, lanterns, and mountain forest",
 };
 
 interface Classification {

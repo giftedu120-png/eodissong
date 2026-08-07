@@ -149,7 +149,7 @@ export default function Home() {
           <button className="primary-button" disabled={!photoName || analyzing} onClick={analyzePhoto}>
             {analyzing ? "사진을 분석하고 있어요…" : "사진 분석하기"}
           </button>
-          {analysisStatus && <p className="analysis-status" role="status"><span className="spinner" />{analysisStatus}<small>첫 분석은 무료 모델 다운로드로 시간이 걸릴 수 있어요.</small></p>}
+          {analysisStatus && <p className="analysis-status" role="status"><span className="spinner" />{analysisStatus}<small>사진 분석에는 일정 시간이 소요됩니다<br />첫 분석은 무료 모델 다운로드로 시간이 걸릴 수 있어요.</small></p>}
           {analysisError && <p className="analysis-error" role="alert">{analysisError}</p>}
           {vision && (
             <div className="result-box" aria-live="polite">
@@ -179,7 +179,7 @@ export default function Home() {
                 {vision.confidence < 0.25 || vision.confidence - (vision.candidates[1]?.confidence ?? 0) < 0.05
                   ? "후보 점수가 비슷해 장소를 단정하기 어려워요. 2·3위도 함께 확인해주세요."
                   : "업로드 사진은 서버로 전송하지 않고 브라우저에서만 분석했어요."}
-                {" "}표시 수치는 등록된 13개 후보 간 상대 점수이며 실제 위치 확률은 아닙니다.
+                {" "}표시 수치는 등록된 30개 부산 명소 후보 간 상대 점수이며 실제 위치 확률은 아닙니다.
               </small>
             </div>
           )}

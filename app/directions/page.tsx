@@ -145,7 +145,7 @@ export default function DirectionsPage() {
         <section className="route-result">
           <div className="route-map-wrap"><TravelMap center={center} currentLocation={origin?.source === "geolocation" ? origin : null} route={route} facilities={route.facilities} /></div>
           <aside className="route-summary">
-            <p className="eyebrow">ROAD NETWORK ROUTE</p><h2>{route.destination.name.ko}</h2><p className="route-source">✓ OpenStreetMap 도로망을 따른 자동차 경로</p><div className="route-metrics"><div><small>거리</small><b>{route.distanceKm.toFixed(1)}km</b></div><div><small>예상 시간</small><b>약 {route.durationMinutes}분</b></div></div>
+            <p className="eyebrow">ROAD NETWORK ROUTE</p><h2>{route.destination.name.ko}</h2><p className="route-source">✓ OpenStreetMap 도로망을 따른 자동차 경로</p><div className="route-metrics"><div><small>거리</small><b>{route.distanceKm.toFixed(1)}km</b></div><div><small>예상 시간</small><b>약 {route.durationMinutes}분</b></div></div><p className="estimate-note">이는 예상 시간이며, 실제와 맞지 않을수도 있습니다</p>
             <ol>{route.steps.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}</ol>
             <div className="facility-section"><h3>경로 주변 편의시설</h3>{route.facilities.map((facility) => <div className="facility-row" key={facility.id}><span>{facilityIcon[facility.kind]}</span><div><b>{facility.name}</b><small>{facilityLabel[facility.kind]}</small></div><em>+{facility.detourKm.toFixed(2)}km 우회</em></div>)}</div>
           </aside>

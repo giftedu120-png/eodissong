@@ -14,6 +14,12 @@ test("nearby places are sorted from the supplied real coordinate", () => {
   assert.match(nearby[0].distance, /^0\.0km$/);
 });
 
+test("the source provider keeps 30 unique Busan attraction seeds", () => {
+  const busanPlaces = places.filter((place) => place.address.startsWith("부산광역시"));
+  assert.equal(busanPlaces.length, 30);
+  assert.equal(new Set(busanPlaces.map((place) => place.id)).size, 30);
+});
+
 test("route keeps the origin and supplies all required facility kinds", () => {
   const origin: UserLocation = { lat: 35.16, lng: 129.12, label: "테스트 현재 위치", source: "geolocation" };
   const route = mockTravelProvider.getRoute(origin, places[0]);
@@ -33,11 +39,20 @@ test("missions only reference seeded real places and are distance sorted", () =>
 });
 
 test("nearby cafe recommendations use seeded real businesses and sort by place distance", () => {
-  const allCafes = mockTravelProvider.getNearbyFacilities({ lat: 35.177106, lng: 129.114927 }, 30);
+  const allCafes = mockTravelProvider.getNearbyFacilities({ lat: 35.177106, lng: 129.114927 }, 100);
   const cafes = allCafes.slice(0, 6);
-  assert.ok(allCafes.length >= 15);
+  assert.ok(allCafes.length >= 47);
   assert.equal(cafes.length, 6);
   assert.ok(cafes.every((cafe) => cafe.kind === "cafe" && cafe.address));
   assert.ok(cafes.every((cafe, index) => index === 0 || (cafes[index - 1].distanceKm ?? 0) <= (cafe.distanceKm ?? 0)));
   assert.equal(cafes[0].name, "테라로사 커피 F1963");
+});
+
+test("every Busan attraction has at least two reasonably nearby seeded cafes", () => {
+  const busanPlaces = places.filter((place) => place.address.startsWith("부산광역시"));
+  for (const place of busanPlaces) {
+    const cafes = mockTravelProvider.getNearbyFacilities(place.coordinates, 2);
+    assert.equal(cafes.length, 2, `${place.name.ko} needs two cafe recommendations`);
+    assert.ok(cafes.every((cafe) => (cafe.distanceKm ?? Number.POSITIVE_INFINITY) <= 12), `${place.name.ko} cafe seeds are too far away`);
+  }
 });
