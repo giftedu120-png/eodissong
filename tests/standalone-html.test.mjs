@@ -90,6 +90,16 @@ test('standalone mobile uploads provide separate camera and gallery inputs', () 
   assert.match(html, /id="missionFile" type="file" accept="image\/\*">/)
 })
 
+test('mission photos require a 60 percent criteria match before awarding points', () => {
+  assert.match(html, /id="startMissionAction">미션 수행/)
+  assert.match(html, /const missionVisionPrompts=/)
+  assert.match(html, /async function validateMissionPhoto/)
+  assert.match(html, /result\.confidence>=0\.6/)
+  assert.match(html, /미션에 더 맞는 사진을 찍어 주세요/)
+  assert.match(html, /saveCompleted\(\[\.\.\.new Set/)
+  assert.doesNotMatch(html, /input\.onchange=\(\)=>\{if\(!input\.files\?\.\[0\]\)return;const next=/)
+})
+
 test('standalone photo analysis ranks real image-dependent candidates in the browser', () => {
   assert.match(html, /@huggingface\/transformers@3\.8\.1/)
   assert.match(html, /zero-shot-image-classification/)
