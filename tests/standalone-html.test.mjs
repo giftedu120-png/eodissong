@@ -58,6 +58,16 @@ test('standalone mobile uploads provide separate camera and gallery inputs', () 
   assert.match(html, /id="missionFile" type="file" accept="image\/\*">/)
 })
 
+test('standalone photo analysis ranks real image-dependent candidates in the browser', () => {
+  assert.match(html, /@huggingface\/transformers@3\.8\.1/)
+  assert.match(html, /zero-shot-image-classification/)
+  assert.match(html, /Xenova\/clip-vit-base-patch32/)
+  assert.match(html, /slice\(1,3\)\.map\(candidateDetails\)/)
+  assert.match(html, /<details class="candidate">/)
+  assert.match(html, /정확도 1위/)
+  assert.doesNotMatch(html, /placeById\('gamcheon'\).*87% 일치/)
+})
+
 test('standalone directions can refresh consented GPS or select a precise address', () => {
   assert.match(html, /id="originCurrent">⌖ 현재 위치 사용/)
   assert.match(html, /id="originDetailSearch">상세 주소 검색/)

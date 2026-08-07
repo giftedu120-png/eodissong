@@ -153,7 +153,16 @@ export const mockTravelProvider: TravelProvider = {
   },
   async analyzeImage(): Promise<VisionResult> {
     await new Promise((resolve) => setTimeout(resolve, 900));
-    return { place: places[1], confidence: 0.87, candidates: [places[1], places[0]] };
+    return {
+      place: places[1],
+      confidence: 0.87,
+      candidates: [
+        { place: places[1], confidence: 0.87 },
+        { place: places[0], confidence: 0.09 },
+        { place: places[2], confidence: 0.04 },
+      ],
+      source: "mock",
+    };
   },
   getEmbedUrl(place) {
     const { lat, lng } = place.coordinates;

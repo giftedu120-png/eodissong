@@ -5,6 +5,7 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationConsentModal } from "./components/LocationConsentModal";
 import { requestCurrentLocation, saveLocation } from "./location";
+import { browserVisionProvider } from "./providers/browser-vision";
 import { mockTravelProvider } from "./providers/mock";
 import type { Locale, Place, UserLocation, VisionResult } from "./providers/types";
 
@@ -34,6 +35,8 @@ export default function Home() {
   const [photoPreview, setPhotoPreview] = useState("");
   const [vision, setVision] = useState<VisionResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisStatus, setAnalysisStatus] = useState("");
+  const [analysisError, setAnalysisError] = useState("");
   const [locale, setLocale] = useState<Locale>("ko");
   const [nearbyState, setNearbyState] = useState<NearbyState>("idle");
   const [nearby, setNearby] = useState<Place[]>([]);
@@ -53,14 +56,22 @@ export default function Home() {
     setPhotoName(file.name);
     setPhotoPreview(URL.createObjectURL(file));
     setVision(null);
+    setAnalysisStatus("");
+    setAnalysisError("");
   };
 
   const analyzePhoto = async () => {
-    if (!photoName) return;
+    if (!photoPreview) return;
     setAnalyzing(true);
     setVision(null);
+    setAnalysisError("");
+    setAnalysisStatus("무료 AI 모델을 준비하고 있어요…");
     try {
-      setVision(await mockTravelProvider.analyzeImage(photoName));
+      setVision(await browserVisionProvider.analyzeImage(photoPreview, setAnalysisStatus));
+      setAnalysisStatus("");
+    } catch {
+      setAnalysisError("사진 분석 모델을 불러오지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해주세요.");
+      setAnalysisStatus("");
     } finally {
       setAnalyzing(false);
     }
@@ -138,9 +149,11 @@ export default function Home() {
           <button className="primary-button" disabled={!photoName || analyzing} onClick={analyzePhoto}>
             {analyzing ? "사진을 분석하고 있어요…" : "사진 분석하기"}
           </button>
+          {analysisStatus && <p className="analysis-status" role="status"><span className="spinner" />{analysisStatus}<small>첫 분석은 무료 모델 다운로드로 시간이 걸릴 수 있어요.</small></p>}
+          {analysisError && <p className="analysis-error" role="alert">{analysisError}</p>}
           {vision && (
             <div className="result-box" aria-live="polite">
-              <div className="result-title"><b>분석 결과</b><span>{Math.round(vision.confidence * 100)}% 일치</span></div>
+              <div className="result-title"><b>정확도 1위</b><span>{Math.round(vision.confidence * 100)}% 후보 일치도</span></div>
               <h3>{vision.place.name[locale]}</h3>
               <p>{vision.place.description[locale]}</p>
               <label className="language-select">설명 언어
@@ -149,7 +162,25 @@ export default function Home() {
                 </select>
               </label>
               <a className="text-link" href={`/place/${vision.place.id}`}><span>장소 상세보기</span><span className="result-arrow" aria-hidden="true">→</span></a>
-              <small className="confidence-note">Mock 분석 결과예요. 실제 연결 시 후보와 신뢰도를 함께 제공합니다.</small>
+              <div className="vision-candidates" aria-label="다른 장소 후보">
+                <b>다른 가능성</b>
+                {vision.candidates.slice(1, 3).map((candidate, index) => (
+                  <details className="vision-candidate" key={candidate.place.id}>
+                    <summary><span>{index + 2}위</span><b>{candidate.place.name[locale]}</b><i aria-hidden="true">＋</i></summary>
+                    <div>
+                      <img src={candidate.place.imageUrl} alt={`${candidate.place.name[locale]} 전경`} />
+                      <p>{candidate.place.description[locale]}</p>
+                      <a href={`/place/${candidate.place.id}`}>장소 상세보기 →</a>
+                    </div>
+                  </details>
+                ))}
+              </div>
+              <small className="confidence-note">
+                {vision.confidence < 0.25 || vision.confidence - (vision.candidates[1]?.confidence ?? 0) < 0.05
+                  ? "후보 점수가 비슷해 장소를 단정하기 어려워요. 2·3위도 함께 확인해주세요."
+                  : "업로드 사진은 서버로 전송하지 않고 브라우저에서만 분석했어요."}
+                {" "}표시 수치는 등록된 13개 후보 간 상대 점수이며 실제 위치 확률은 아닙니다.
+              </small>
             </div>
           )}
         </article>
@@ -202,7 +233,7 @@ export default function Home() {
         <Link href="/place/gwangalli">추천 장소 보기 <span aria-hidden="true">→</span></Link>
       </section>
 
-      <footer><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><p>부산을 담고, 나만의 길을 찾는 여행.</p><small>현재 Mock 데이터로 작동합니다.</small></footer>
+      <footer><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><p>부산을 담고, 나만의 길을 찾는 여행.</p><small>장소·미션은 검증된 Seed 데이터로 작동합니다.</small></footer>
       <LocationConsentModal open={consentOpen} busy={nearbyState === "loading"} error={locationError} onAgree={useCurrentLocation} onManual={applyManualLocation} onClose={() => setConsentOpen(false)} />
     </main>
   );

@@ -51,7 +51,14 @@ export interface Mission {
   distanceKm: number;
 }
 
-export interface VisionResult { place: Place; confidence: number; candidates: Place[] }
+export interface VisionCandidate { place: Place; confidence: number }
+
+export interface VisionResult {
+  place: Place;
+  confidence: number;
+  candidates: VisionCandidate[];
+  source: "browser-clip" | "mock";
+}
 
 export interface PlaceProvider {
   searchPlaces(query: string): Place[];
@@ -63,7 +70,7 @@ export interface PlaceProvider {
   getNearbyFacilities(coordinates: Coordinates, limit?: number): Facility[];
 }
 
-export interface VisionProvider { analyzeImage(fileName: string): Promise<VisionResult> }
+export interface VisionProvider { analyzeImage(imageSource: string): Promise<VisionResult> }
 
 export interface MapProvider { getEmbedUrl(place: Place): string; getDirectionsUrl(place: Place): string }
 
