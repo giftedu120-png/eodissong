@@ -35,13 +35,27 @@ test('location is requested only through the consent action', () => {
 })
 
 test('Busan seed data and nearby cafes are bundled', () => {
-  const ids = [...html.matchAll(/^\s+\['([^']+)'/gm)].map((match) => match[1])
+  const placeBlock = html.match(/const places=\[([\s\S]*?)\]\.map\(p=>/)[1]
+  const ids = [...placeBlock.matchAll(/^\s+\['([^']+)'/gm)].map((match) => match[1])
   assert.equal(ids.length, 13)
   assert.match(html, /const cafes=\[/)
   assert.match(html, /모모스커피 영도/)
   assert.match(html, /테라로사 커피 F1963/)
   assert.match(html, /할리스 광안해변점/)
   assert.match(html, /slice\(0,6\)/)
+})
+
+test('standalone header offers five persistent whole-page languages', () => {
+  assert.match(html, /id="missionNav"/)
+  assert.match(html, /id="languageSelect"/)
+  assert.match(html, /한국어\(Korean\)/)
+  assert.match(html, /영어\(English\)/)
+  assert.match(html, /일본어\(Japanese\)/)
+  assert.match(html, /중국어\(Chinese\)/)
+  assert.match(html, /대만어\(Taiwanese\)/)
+  assert.match(html, /eodissong:locale/)
+  assert.match(html, /new MutationObserver\(\(\)=>translateTree\(document\.body\)\)/)
+  assert.match(html, /'accept-language':currentLocale/)
 })
 
 test('standalone directions use road geometry and never draw the old straight-line route', () => {
