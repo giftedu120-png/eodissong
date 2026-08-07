@@ -169,12 +169,16 @@ test('course result adds removable AI recommendations and numbers every stop', (
 })
 
 test('course building shows timed progress and falls back when distance optimization is slow', () => {
+  const recommendationSource = html.slice(html.indexOf('function fallbackCourseStops'), html.indexOf('function showCourseProgress'))
+  assert.doesNotMatch(recommendationSource, /\bdistanceKm\(/)
+  assert.match(recommendationSource, /\bdistance\(/)
   assert.match(html, /function showCourseProgress\(initialMessage=/)
   assert.match(html, /role="status" aria-live="polite"/)
   assert.match(html, /id="courseProgressMessage"/)
   assert.match(html, /id="courseProgressTime"/)
   assert.match(html, /setInterval\(\(\)=>\{const elapsed=/)
   assert.match(html, /progress\.update\('실제 도로 거리를 비교하고 있어요\.'\)/)
+  assert.match(html, /await new Promise\(resolve=>setTimeout\(resolve,0\)\)/)
   assert.match(html, /progress\.update\(optimized\.fallback\?'/)
   assert.match(html, /finally\{progress\.stop\(\)\}/)
   assert.match(html, /function fallbackCourseStops\(origin,waypoints,destination\)/)
