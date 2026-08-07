@@ -142,7 +142,7 @@ test('course builder separates waypoints and final destination with exact-addres
   assert.match(html, /coursePointFromGeocode/)
   assert.match(html, /data-course-remove/)
   assert.match(html, /id="courseCafe" type="checkbox"/)
-  assert.match(html, /roadCourseRoute\(state\.location,optimizedStops\)/)
+  assert.match(html, /roadCourseRoute\(state\.location,optimized\.stops\)/)
   assert.match(html, /route\/v1\/driving\/\$\{coordinates\}/)
 })
 
@@ -166,6 +166,20 @@ test('course result adds removable AI recommendations and numbers every stop', (
   assert.match(html, /<span>\$\{index\+2\}<\/span>/)
   assert.match(html, /\$\{stop\.type==='cafe'\?' ☕':''\}<\/b>/)
   assert.match(html, /stop\.aiRecommended\?' · AI 추천':''/)
+})
+
+test('course building shows timed progress and falls back when distance optimization is slow', () => {
+  assert.match(html, /function showCourseProgress\(initialMessage=/)
+  assert.match(html, /role="status" aria-live="polite"/)
+  assert.match(html, /id="courseProgressMessage"/)
+  assert.match(html, /id="courseProgressTime"/)
+  assert.match(html, /setInterval\(\(\)=>\{const elapsed=/)
+  assert.match(html, /progress\.update\('실제 도로 거리를 비교하고 있어요\.'\)/)
+  assert.match(html, /progress\.update\(optimized\.fallback\?'/)
+  assert.match(html, /finally\{progress\.stop\(\)\}/)
+  assert.match(html, /function fallbackCourseStops\(origin,waypoints,destination\)/)
+  assert.match(html, /catch\{return\{stops:fallbackCourseStops\(origin,waypoints,destination\),fallback:true\}\}/)
+  assert.match(html, /for\(let attempt=0;attempt<2;attempt\+\+\)/)
 })
 
 test('course builder can reset every configured course point', () => {
