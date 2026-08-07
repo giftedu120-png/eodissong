@@ -161,6 +161,8 @@ test('course builder can reset every configured course point', () => {
   assert.match(html, /id="resetCourseSettings">설정 코스 초기화/)
   assert.match(html, /function resetCourseSettings\(\)\{sessionStorage\.removeItem\('eodissong:location'\);state\.location=null;state\.courseStops=\[\];state\.courseDestination=null;state\.courseCafe=false;state\.courseResult=null;state\.courseMessage='';renderCourse\(\)\}/)
   assert.match(html, /document\.querySelector\('#resetCourseSettings'\)\.onclick=resetCourseSettings/)
+  assert.doesNotMatch(html, /if\(!state\.location\)\{app\.innerHTML=.*bindOriginEditor\('course'\);return\}/)
+  assert.match(html, /id="buildCourse" \$\{state\.location&&state\.courseDestination\?'':'disabled'\}/)
 })
 
 test('shortest-order optimizer can reorder waypoints while preserving the fixed end', () => {
