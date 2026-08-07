@@ -7,8 +7,9 @@ import { LocationConsentModal } from "../components/LocationConsentModal";
 import { TravelMap } from "../components/TravelMap";
 import { loadLocation, requestCurrentLocation, saveLocation } from "../location";
 import { mockTravelProvider } from "../providers/mock";
+import { isBroadLocationQuery, nominatimGeocodingProvider } from "../providers/nominatim";
 import { createOsrmRoutingProvider } from "../providers/osrm";
-import type { Place, RouteResult, UserLocation } from "../providers/types";
+import type { GeocodingResult, Place, RouteResult, UserLocation } from "../providers/types";
 
 const facilityLabel = { toilet: "화장실", convenience: "편의점", cafe: "카페" };
 const facilityIcon = { toilet: "WC", convenience: "24", cafe: "☕" };
@@ -26,6 +27,9 @@ export default function DirectionsPage() {
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [routeState, setRouteState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [routeError, setRouteError] = useState("");
+  const [originResults, setOriginResults] = useState<GeocodingResult[]>([]);
+  const [originSearchBusy, setOriginSearchBusy] = useState(false);
+  const [originSearchError, setOriginSearchError] = useState("");
   const destinationId = searchParams.get("to");
 
   useEffect(() => {
@@ -77,9 +81,7 @@ export default function DirectionsPage() {
     } finally { setLocationBusy(false); }
   };
 
-  const useManualLocation = (query: string) => {
-    const location = mockTravelProvider.geocode(query);
-    if (!location) { setLocationError("등록된 지역, 주소 또는 장소를 찾지 못했습니다."); return; }
+  const useManualLocation = (location: UserLocation) => {
     saveLocation(location);
     setOrigin(location);
     setOriginQuery("");
@@ -91,6 +93,36 @@ export default function DirectionsPage() {
     saveLocation(location);
     setOrigin(location);
     setOriginQuery("");
+    setOriginResults([]);
+  };
+
+  const chooseOriginResult = (result: GeocodingResult) => {
+    const location: UserLocation = { ...result.coordinates, label: result.label, source: "manual" };
+    saveLocation(location);
+    setOrigin(location);
+    setOriginQuery("");
+    setOriginResults([]);
+    setOriginSearchError("");
+  };
+
+  const searchDetailedOrigin = async () => {
+    const value = originQuery.trim();
+    setOriginResults([]);
+    setOriginSearchError("");
+    if (isBroadLocationQuery(value)) {
+      setOriginSearchError("부산 전체보다 동·도로명·역·건물명을 함께 입력해주세요.");
+      return;
+    }
+    setOriginSearchBusy(true);
+    try {
+      const results = await nominatimGeocodingProvider.search(value);
+      setOriginResults(results);
+      if (!results.length) setOriginSearchError("세부 위치를 찾지 못했습니다. 주소나 장소명을 더 자세히 입력해주세요.");
+    } catch {
+      setOriginSearchError("상세 주소 검색에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setOriginSearchBusy(false);
+    }
   };
 
   const center = origin ?? destination?.coordinates ?? { lat: 37.5665, lng: 126.9780 };
@@ -100,7 +132,7 @@ export default function DirectionsPage() {
       <header className="app-header"><Link href="/" className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</Link><Link href="/explore" className="header-link">미션 지도 ✦</Link></header>
       <section className="directions-head"><p className="eyebrow">ROUTE GUIDE</p><h1>어디서 출발할까요?</h1><p>현재 위치, 주소 또는 장소를 선택하면 추천 경로를 보여드려요.</p></section>
       <section className="route-inputs">
-        <div className="route-field-block"><label htmlFor="route-origin">출발지</label><div className="route-field"><span className="route-dot start" /><input id="route-origin" value={originQuery} onChange={(event) => setOriginQuery(event.target.value)} placeholder={origin?.label ?? "주소 또는 장소 검색"} aria-label="출발지 검색" /><button onClick={() => setConsentOpen(true)}>⌖ 현재 위치</button></div>{originSuggestions.length > 0 && <div className="route-suggestions">{originSuggestions.map((place) => <button key={place.id} onClick={() => chooseOriginPlace(place)}><b>{place.name.ko}</b><small>{place.address}</small></button>)}</div>}</div>
+        <div className="route-field-block origin"><label htmlFor="route-origin">출발지</label><div className="route-field"><span className="route-dot start" /><input id="route-origin" value={originQuery} onChange={(event) => { setOriginQuery(event.target.value); setOriginResults([]); setOriginSearchError(""); }} placeholder={origin?.label ?? "동·도로명·역·건물명 검색"} aria-label="출발지 검색" /></div><div className="route-origin-actions"><button onClick={() => setConsentOpen(true)}>⌖ 허가 후 현재 위치 사용</button><button onClick={searchDetailedOrigin} disabled={!originQuery.trim() || originSearchBusy}>{originSearchBusy ? "검색 중…" : "상세 주소 검색"}</button></div>{originSearchError && <p className="route-address-error" role="alert">{originSearchError}</p>}{originResults.length > 0 ? <><div className="route-suggestions">{originResults.map((result) => <button key={result.id} onClick={() => chooseOriginResult(result)}><b>{result.label}</b><small>{result.kind}</small></button>)}</div><small className="geocode-credit">주소 검색 © OpenStreetMap contributors</small></> : originSuggestions.length > 0 && <div className="route-suggestions">{originSuggestions.map((place) => <button key={place.id} onClick={() => chooseOriginPlace(place)}><b>{place.name.ko}</b><small>{place.address}</small></button>)}</div>}</div>
         <span className="route-connector" aria-hidden="true">↓</span>
         <div className="route-field-block"><label htmlFor="route-destination">목적지</label><div className="route-field"><span className="route-dot end" /><input id="route-destination" value={destinationQuery} onChange={(event) => setDestinationQuery(event.target.value)} placeholder={destination?.name.ko ?? "장소 검색"} aria-label="목적지 검색" /></div>{destinationSuggestions.length > 0 && <div className="route-suggestions">{destinationSuggestions.map((place) => <button key={place.id} onClick={() => { setDestination(place); setDestinationQuery(""); }}><b>{place.name.ko}</b><small>{place.address}</small></button>)}</div>}</div>
       </section>

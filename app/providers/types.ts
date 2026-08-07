@@ -71,6 +71,15 @@ export interface RoutingProvider { getRoute(origin: UserLocation, destination: P
 
 export interface AsyncRoutingProvider { getRoute(origin: UserLocation, destination: Place, signal?: AbortSignal): Promise<RouteResult> }
 
+export interface GeocodingResult {
+  id: string;
+  label: string;
+  coordinates: Coordinates;
+  kind: string;
+}
+
+export interface GeocodingProvider { search(query: string, signal?: AbortSignal): Promise<GeocodingResult[]> }
+
 export interface MissionProvider { getMissions(origin: UserLocation): Mission[] }
 
 export type TravelProvider = PlaceProvider & VisionProvider & MapProvider & RoutingProvider & MissionProvider;

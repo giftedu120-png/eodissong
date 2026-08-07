@@ -26,3 +26,11 @@ test("mobile photo controls separate camera capture from file upload", async () 
   assert.match(exploreSource, /📷 촬영<input type="file" accept="image\/\*" capture="environment"/);
   assert.match(exploreSource, /▣ 파일 업로드<input type="file" accept="image\/\*" onChange=\{completeMission\}/);
 });
+
+test("directions always expose consented current location and detailed address search", async () => {
+  const directionsSource = await readFile(new URL("../app/directions/page.tsx", import.meta.url), "utf8");
+  assert.match(directionsSource, /허가 후 현재 위치 사용/);
+  assert.match(directionsSource, /상세 주소 검색/);
+  assert.match(directionsSource, /nominatimGeocodingProvider\.search/);
+  assert.match(directionsSource, /동·도로명·역·건물명/);
+});

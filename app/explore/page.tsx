@@ -61,12 +61,7 @@ export default function ExplorePage() {
     }
   };
 
-  const useManualLocation = (query: string) => {
-    const location = mockTravelProvider.geocode(query);
-    if (!location) {
-      setLocationError("장소를 찾지 못했습니다. 부산, 서울 또는 등록된 명소·주소를 입력해주세요.");
-      return;
-    }
+  const useManualLocation = (location: UserLocation) => {
     saveLocation(location);
     setOrigin(location);
     setConsentOpen(false);

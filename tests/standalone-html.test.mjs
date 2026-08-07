@@ -57,3 +57,10 @@ test('standalone mobile uploads provide separate camera and gallery inputs', () 
   assert.match(html, /id="missionCamera" type="file" accept="image\/\*" capture="environment"/)
   assert.match(html, /id="missionFile" type="file" accept="image\/\*">/)
 })
+
+test('standalone directions can refresh consented GPS or select a precise address', () => {
+  assert.match(html, /id="originCurrent">⌖ 현재 위치 사용/)
+  assert.match(html, /id="originDetailSearch">상세 주소 검색/)
+  assert.match(html, /nominatim\.openstreetmap\.org\/search/)
+  assert.match(html, /부산 전체보다 동·도로명·역·건물명/)
+})

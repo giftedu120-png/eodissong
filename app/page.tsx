@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { LocationConsentModal } from "./components/LocationConsentModal";
 import { requestCurrentLocation, saveLocation } from "./location";
 import { mockTravelProvider } from "./providers/mock";
-import type { Locale, Place, VisionResult } from "./providers/types";
+import type { Locale, Place, UserLocation, VisionResult } from "./providers/types";
 
 type NearbyState = "idle" | "loading" | "ready" | "denied" | "error";
 
@@ -86,17 +86,21 @@ export default function Home() {
     }
   };
 
+  const applyManualLocation = (location: UserLocation) => {
+    saveLocation(location);
+    setNearby(mockTravelProvider.getNearby(location.lat, location.lng));
+    setNearbyState("ready");
+    setConsentOpen(false);
+    router.push("/explore");
+  };
+
   const searchRegion = (value = region) => {
     const location = mockTravelProvider.geocode(value);
     if (!location) {
       setLocationError("지원하는 지역이나 장소를 찾지 못했습니다. 부산, 서울 또는 등록된 명소 이름을 입력해주세요.");
       return;
     }
-    saveLocation(location);
-    setNearby(mockTravelProvider.getNearby(location.lat, location.lng));
-    setNearbyState("ready");
-    setConsentOpen(false);
-    router.push("/explore");
+    applyManualLocation(location);
   };
 
   return (
@@ -199,7 +203,7 @@ export default function Home() {
       </section>
 
       <footer><span className="brand"><img className="brand-logo" src="/eodissong-logo.png" alt="" /> 어디쏭</span><p>부산을 담고, 나만의 길을 찾는 여행.</p><small>현재 Mock 데이터로 작동합니다.</small></footer>
-      <LocationConsentModal open={consentOpen} busy={nearbyState === "loading"} error={locationError} onAgree={useCurrentLocation} onManual={searchRegion} onClose={() => setConsentOpen(false)} />
+      <LocationConsentModal open={consentOpen} busy={nearbyState === "loading"} error={locationError} onAgree={useCurrentLocation} onManual={applyManualLocation} onClose={() => setConsentOpen(false)} />
     </main>
   );
 }
