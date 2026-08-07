@@ -65,6 +65,13 @@ test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
   assert.match(html, /href="#\/course">코스 설정 시작/)
 })
 
+test('nearby results distinguish the current location from recommended attractions', () => {
+  assert.match(html, /<b>내 위치 · \$\{state\.location\.label\}<\/b>/)
+  assert.match(html, /class="recommended-label">&lt;추천된 주변 명소&gt;/)
+  assert.match(html, /class="map-marker \$\{extra\}"/)
+  assert.match(html, /mapIcon\('●','user'\)/)
+})
+
 test('course builder separates waypoints and final destination with exact-address search', () => {
   assert.match(html, /else if\(view==='course'\)renderCourse\(\)/)
   assert.match(html, /bindOriginEditor\('course'\)/)
@@ -74,6 +81,11 @@ test('course builder separates waypoints and final destination with exact-addres
   assert.match(html, /id="finalAddressInput"/)
   assert.match(html, /bindCourseAddressSearch\('stop'\)/)
   assert.match(html, /bindCourseAddressSearch\('final'\)/)
+  assert.doesNotMatch(html, /id="waypointSearch"/)
+  assert.doesNotMatch(html, /id="finalSearch"/)
+  assert.doesNotMatch(html, /bindCourseRegisteredSearch/)
+  assert.doesNotMatch(html, /class="course-nearby"/)
+  assert.match(html, /const registered=registeredCourseMatches\(query,target\)\[0\]/)
   assert.match(html, /coursePointFromGeocode/)
   assert.match(html, /data-course-remove/)
   assert.match(html, /id="courseCafe" type="checkbox"/)
