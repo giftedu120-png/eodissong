@@ -155,6 +155,19 @@ test('course builder optimizes waypoint order by road distance and keeps final d
   assert.match(html, /destination-stop/)
 })
 
+test('course result adds removable AI recommendations and numbers every stop', () => {
+  assert.match(html, /function recommendAiCourseStop\(origin,waypoints,destination\)/)
+  assert.match(html, /routeWaypoints\.push\(\{\.\.\.aiPlace,type:'ai',aiRecommended:true\}\)/)
+  assert.match(html, /category:'AI 추천 카페',aiRecommended:true/)
+  assert.match(html, /stop\.aiRecommended\?`<button class="course-ai-remove" data-ai-remove="\$\{index\}"/)
+  assert.match(html, /async function removeAiCourseRecommendation\(index\)/)
+  assert.match(html, /roadCourseRoute\(origin,remaining\)/)
+  assert.match(html, /<li><span>1<\/span><div><b>\$\{escapeHtml\(origin\.label\)\}/)
+  assert.match(html, /<span>\$\{index\+2\}<\/span>/)
+  assert.match(html, /\$\{stop\.type==='cafe'\?' ☕':''\}<\/b>/)
+  assert.match(html, /stop\.aiRecommended\?' · AI 추천':''/)
+})
+
 test('course builder can reset every configured course point', () => {
   assert.match(html, /class="origin-title">길찾기 출발지/)
   assert.match(html, /\.origin-editor>\.origin-title\{[^}]*font-size:15px/)
