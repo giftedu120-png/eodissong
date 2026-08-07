@@ -58,6 +58,24 @@ test('standalone header offers five persistent whole-page languages', () => {
   assert.match(html, /'accept-language':currentLocale/)
 })
 
+test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
+  assert.match(html, /04 · AI MISSION/)
+  assert.match(html, /href="#\/explore">미션 지도 보기/)
+  assert.match(html, /05 · AI COURSE/)
+  assert.match(html, /href="#\/course">코스 설정 시작/)
+})
+
+test('course builder reuses precise origins and supports multiple destinations plus optional cafe', () => {
+  assert.match(html, /else if\(view==='course'\)renderCourse\(\)/)
+  assert.match(html, /bindOriginEditor\('course'\)/)
+  assert.match(html, /state\.courseStops\.push\(place\)/)
+  assert.match(html, /data-course-remove/)
+  assert.match(html, /id="courseCafe" type="checkbox"/)
+  assert.match(html, /roadCourseRoute\(state\.location,routeStops\)/)
+  assert.match(html, /route\/v1\/driving\/\$\{coordinates\}/)
+  assert.match(html, /routeStops\.splice\(insertAt,0,\{\.\.\.cafe,type:'cafe'/)
+})
+
 test('standalone directions use road geometry and never draw the old straight-line route', () => {
   assert.match(html, /router\.project-osrm\.org\/route\/v1\/driving/)
   assert.match(html, /geometries=geojson&steps=true/)

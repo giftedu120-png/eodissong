@@ -19,6 +19,7 @@ Node.js 22.13 이상에서 `npm install` 후 `npm run dev`를 실행합니다.
 - `app/directions/page.tsx`: 현재 위치·주소·장소 기반 길찾기와 편의시설
 - `app/components/LocationConsentModal.tsx`: 위치 활용 안내 및 직접 입력 대체 흐름
 - `app/components/TravelMap.tsx`: OpenStreetMap 기반 현재 위치·경로·미션 마커 지도
+- `docs/index.html`의 `#/course`: 출발지, 여러 경유지와 선택적 카페를 실제 도로망으로 연결하는 정적 AI 추천 코스
 
 ## 가정
 
@@ -34,6 +35,7 @@ Node.js 22.13 이상에서 `npm install` 후 `npm run dev`를 실행합니다.
 - 선택한 부산 명소 주변에는 비짓부산과 공개 지도에서 확인한 카페 Seed를 거리순으로 표시합니다.
 - 지도와 장소 사진은 공개 웹 리소스를 사용하므로 오프라인에서는 표시되지 않을 수 있습니다.
 - 상단 번역 선택기에서 한국어, 영어, 일본어, 중국어(간체), 대만어(번체)를 전환할 수 있으며 선택값은 브라우저 `localStorage`에 저장됩니다. 정적 다국어 사전을 사용하므로 번역 API 키나 비용이 필요하지 않습니다.
+- AI 추천 코스는 사용자가 선택한 경유지 순서를 유지합니다. 카페 방문을 선택하면 전체 경유지의 중간 구간에서 가장 가까운 검증된 카페 Seed 한 곳을 자동으로 추가합니다.
 
 ## 실제 API 연결 시 환경 변수 예시
 
