@@ -172,6 +172,16 @@
       ['마린시티','Marine City','マリンシティ','海洋城','海洋城'],
       ['센텀시티','Centum City','センタムシティ','Centum City','Centum City'],
       ['광안해변로','Gwanganhaebyeon-ro','広安海辺路','广安海边路','廣安海邊路'],
+      ['경로 서버 응답 오류','Route server error','ルートサーバー応答エラー','路线服务器响应错误','路線伺服器回應錯誤'],
+      ['회전교차로에서','At the roundabout','ラウンドアバウトで','在环岛处','在圓環處'],
+      ['향해 좌회전 후','turn left toward','方面へ左折して','向该方向左转后','朝該方向左轉後'],
+      ['향해 우회전 후','turn right toward','方面へ右折して','向该方向右转后','朝該方向右轉後'],
+      ['유턴한 뒤','after a U-turn','Uターン後','掉头后','迴轉後'],
+      ['도로를','the road','道路を','道路','道路'],
+      ['따라','follow','沿って','沿','沿'],
+      ['이동','travel','進む','行进','行進'],
+      ['장소','Place','場所','地点','地點'],
+      ['부산','Busan','釜山','釜山','釜山'],
       ['도착','Arrive','到着','到达','抵達'],
       ['출발','Depart','出発','出发','出發'],
       ['우회','detour','迂回','绕行','繞行'],
@@ -285,7 +295,19 @@
     ];
     const translationRows=[...uiRows,...placeRows.flat()];
     const translationPairs=()=>{const index=localeIndexes[currentLocale];return index===0?[]:translationRows.map(row=>[row[0],row[index]]).filter(pair=>pair[0]&&pair[1]&&pair[0]!==pair[1]).sort((a,b)=>b[0].length-a[0].length)};
-    const translateText=value=>{let output=String(value);for(const [source,target] of translationPairs())output=output.split(source).join(target);if(currentLocale==='en')output=output.replace(/^(.+)에서 (.+)까지$/,'From $1 to $2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'Depart from $1 and follow $2 for $3').replace(/^(.+) 도착$/,'Arrive at $1').replace(/약 (\d+)min/,'About $1 min').replace(/(\d+)곳/g,'$1 places').replace(/(.+) 기준 ·/,'Based on $1 ·');if(currentLocale==='ja')output=output.replace(/^(.+)에서 (.+)까지$/,'$1から$2まで').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'$1を出発し、$2を$3進む').replace(/^(.+) 도착$/,'$1に到着').replace(/약 (\d+)分/,'約$1分').replace(/(\d+)곳/g,'$1か所').replace(/(.+) 기준 ·/,'$1基準 ·');if(currentLocale==='zh-CN')output=output.replace(/^(.+)에서 (.+)까지$/,'从$1到$2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'从$1出发，沿$2行进$3').replace(/^(.+) 도착$/,'到达$1').replace(/약 (\d+)分钟/,'约$1分钟').replace(/(\d+)곳/g,'$1处').replace(/(.+) 기준 ·/,'以$1为基准 ·');if(currentLocale==='zh-TW')output=output.replace(/^(.+)에서 (.+)까지$/,'從$1到$2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'從$1出發，沿$2行進$3').replace(/^(.+) 도착$/,'抵達$1').replace(/약 (\d+)分鐘/,'約$1分鐘').replace(/(\d+)곳/g,'$1處').replace(/(.+) 기준 ·/,'以$1為基準 ·');return output};
+    const translateText=value=>{
+      let output=String(value);
+      if(currentLocale==='en')output=output.replace(/^(.+)에서 (.+)까지$/,'From $1 to $2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'Depart from $1 and follow $2 for $3').replace(/^(.+) 도착$/,'Arrive at $1');
+      if(currentLocale==='ja')output=output.replace(/^(.+)에서 (.+)까지$/,'$1から$2まで').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'$1を出発し、$2を$3進む').replace(/^(.+) 도착$/,'$1に到着');
+      if(currentLocale==='zh-CN')output=output.replace(/^(.+)에서 (.+)까지$/,'从$1到$2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'从$1出发，沿$2行进$3').replace(/^(.+) 도착$/,'到达$1');
+      if(currentLocale==='zh-TW')output=output.replace(/^(.+)에서 (.+)까지$/,'從$1到$2').replace(/^(.+)에서 출발해 (.+?)(?:을\(를\))? 따라 (.+) 이동$/,'從$1出發，沿$2行進$3').replace(/^(.+) 도착$/,'抵達$1');
+      for(const [source,target] of translationPairs())output=output.split(source).join(target);
+      if(currentLocale==='en')output=output.replace(/약 (\d+)min/,'About $1 min').replace(/(\d+)곳/g,'$1 places').replace(/(.+) 기준 ·/,'Based on $1 ·');
+      if(currentLocale==='ja')output=output.replace(/약 (\d+)分/,'約$1分').replace(/(\d+)곳/g,'$1か所').replace(/(.+) 기준 ·/,'$1基準 ·');
+      if(currentLocale==='zh-CN')output=output.replace(/약 (\d+)分钟/,'约$1分钟').replace(/(\d+)곳/g,'$1处').replace(/(.+) 기준 ·/,'以$1为基准 ·');
+      if(currentLocale==='zh-TW')output=output.replace(/약 (\d+)分鐘/,'約$1分鐘').replace(/(\d+)곳/g,'$1處').replace(/(.+) 기준 ·/,'以$1為基準 ·');
+      return output;
+    };
     const translateTree=root=>{if(currentLocale==='ko'||!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(node=>{if(!node.parentElement?.closest('script,style,[data-no-translate]'))node.nodeValue=translateText(node.nodeValue)});root.querySelectorAll?.('[placeholder],[aria-label],[alt],[title]').forEach(element=>{if(element.closest('[data-no-translate]'))return;for(const attribute of ['placeholder','aria-label','alt','title'])if(element.hasAttribute(attribute))element.setAttribute(attribute,translateText(element.getAttribute(attribute)))})};
     const syncLanguageChrome=()=>{document.documentElement.lang=currentLocale;document.querySelector('#missionNav').textContent=translateText('미션 지도');const titles={ko:'어디쏭 | 부산을 담다, 길을 찾다',en:'Eodissong | Capture Busan, find your way',ja:'どこソング | 釜山を写し、道を見つける','zh-CN':'去哪颂 | 记录釜山，寻找旅途','zh-TW':'去哪頌 | 記錄釜山，尋找旅途'};document.title=titles[currentLocale]};
     const commons=n=>`https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(n)}?width=1000`;
