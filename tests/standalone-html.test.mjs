@@ -46,7 +46,7 @@ test('Busan seed data and nearby cafes are bundled', () => {
 })
 
 test('standalone header offers five persistent whole-page languages', () => {
-  assert.match(html, /id="missionNav"/)
+  assert.doesNotMatch(html, /id="missionNav"/)
   assert.match(html, /id="languageSelect"/)
   assert.match(html, /한국어\(Korean\)/)
   assert.match(html, /영어\(English\)/)
@@ -56,6 +56,7 @@ test('standalone header offers five persistent whole-page languages', () => {
   assert.match(html, /eodissong:locale/)
   assert.match(html, /new MutationObserver\(\(\)=>translateTree\(document\.body\)\)/)
   assert.match(html, /'accept-language':currentLocale/)
+  assert.match(html, /header \.points\{display:inline-flex/)
 })
 
 test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
@@ -137,6 +138,15 @@ test('mission photos require a 60 percent criteria match before awarding points'
   assert.match(html, /미션에 더 맞는 사진을 찍어 주세요/)
   assert.match(html, /saveCompleted\(\[\.\.\.new Set/)
   assert.doesNotMatch(html, /input\.onchange=\(\)=>\{if\(!input\.files\?\.\[0\]\)return;const next=/)
+})
+
+test('mission popup closes cleanly and upload choices appear below the mission prompt', () => {
+  assert.match(html, /id="closeMissionSheet" aria-label="미션 장소 팝업 닫기">×/)
+  assert.match(html, /closeMissionSheet'\)\.onclick=\(\)=>\{document\.querySelector\('#missionSheet'\)\.innerHTML=''/)
+  assert.match(html, /state\.cafeLayer\.remove\(\);state\.cafeLayer=null/)
+  assert.match(html, /mission-upload-options mission-upload-inline/)
+  assert.match(html, /<\/div>\$\{missionControl\}<div class="cafe-list">/)
+  assert.match(html, /if\(state\.missionReview\?\.placeId!==p\.id\)return/)
 })
 
 test('mission reset requires confirmation, preserves points, and enforces 24 hours', () => {
