@@ -40,4 +40,13 @@ test('Busan seed data and nearby cafes are bundled', () => {
   assert.match(html, /const cafes=\[/)
   assert.match(html, /모모스커피 영도/)
   assert.match(html, /테라로사 커피 F1963/)
+  assert.match(html, /할리스 광안해변점/)
+  assert.match(html, /slice\(0,6\)/)
+})
+
+test('standalone directions use road geometry and never draw the old straight-line route', () => {
+  assert.match(html, /router\.project-osrm\.org\/route\/v1\/driving/)
+  assert.match(html, /geometries=geojson&steps=true/)
+  assert.match(html, /OpenStreetMap 도로망을 따른 자동차 경로/)
+  assert.doesNotMatch(html, /L\.polyline\(\[\[state\.location\.lat/)
 })

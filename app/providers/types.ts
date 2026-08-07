@@ -39,6 +39,7 @@ export interface RouteResult {
   path: Coordinates[];
   steps: string[];
   facilities: Facility[];
+  source?: "road-network" | "mock";
 }
 
 export interface Mission {
@@ -67,6 +68,8 @@ export interface VisionProvider { analyzeImage(fileName: string): Promise<Vision
 export interface MapProvider { getEmbedUrl(place: Place): string; getDirectionsUrl(place: Place): string }
 
 export interface RoutingProvider { getRoute(origin: UserLocation, destination: Place): RouteResult }
+
+export interface AsyncRoutingProvider { getRoute(origin: UserLocation, destination: Place, signal?: AbortSignal): Promise<RouteResult> }
 
 export interface MissionProvider { getMissions(origin: UserLocation): Mission[] }
 

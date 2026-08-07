@@ -33,8 +33,10 @@ test("missions only reference seeded real places and are distance sorted", () =>
 });
 
 test("nearby cafe recommendations use seeded real businesses and sort by place distance", () => {
-  const cafes = mockTravelProvider.getNearbyFacilities({ lat: 35.177106, lng: 129.114927 }, 4);
-  assert.equal(cafes.length, 4);
+  const allCafes = mockTravelProvider.getNearbyFacilities({ lat: 35.177106, lng: 129.114927 }, 30);
+  const cafes = allCafes.slice(0, 6);
+  assert.ok(allCafes.length >= 15);
+  assert.equal(cafes.length, 6);
   assert.ok(cafes.every((cafe) => cafe.kind === "cafe" && cafe.address));
   assert.ok(cafes.every((cafe, index) => index === 0 || (cafes[index - 1].distanceKm ?? 0) <= (cafe.distanceKm ?? 0)));
   assert.equal(cafes[0].name, "테라로사 커피 F1963");

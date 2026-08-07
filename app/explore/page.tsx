@@ -34,7 +34,7 @@ export default function ExplorePage() {
 
   const missions = useMemo(() => origin ? mockTravelProvider.getMissions(origin) : [], [origin]);
   const nearbyPlaces = useMemo(() => origin ? mockTravelProvider.getNearby(origin.lat, origin.lng).slice(0, 12) : [], [origin]);
-  const nearbyFacilities = useMemo(() => selected ? mockTravelProvider.getNearbyFacilities(selected.place.coordinates, 4) : [], [selected]);
+  const nearbyFacilities = useMemo(() => selected ? mockTravelProvider.getNearbyFacilities(selected.place.coordinates, 6) : [], [selected]);
   const points = useMemo(() => missions.filter((mission) => completedIds.includes(mission.id)).reduce((sum, mission) => sum + mission.points, 0), [completedIds, missions]);
 
   useEffect(() => {

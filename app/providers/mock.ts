@@ -93,6 +93,16 @@ const busanCafeSeeds: Facility[] = [
   { id: "cafe-p-ark", name: "피아크 카페&베이커리", kind: "cafe", coordinates: { lat: 35.086429, lng: 129.076731 }, detourKm: 0, address: "부산광역시 영도구 해양로195번길 180" },
   { id: "cafe-terarosa-f1963", name: "테라로사 커피 F1963", kind: "cafe", coordinates: { lat: 35.17712, lng: 129.1149 }, detourKm: 0, address: "부산광역시 수영구 구락로123번길 20" },
   { id: "cafe-haevichi-f1963", name: "카페 바이 해비치", kind: "cafe", coordinates: { lat: 35.1773, lng: 129.11465 }, detourKm: 0, address: "부산광역시 수영구 구락로123번길 20" },
+  { id: "cafe-yuramseon", name: "유람선", kind: "cafe", coordinates: { lat: 35.1465973, lng: 129.1133335 }, detourKm: 0, address: "부산광역시 수영구 남천동" },
+  { id: "cafe-angelinus-namcheon", name: "엔제리너스 남천비치점", kind: "cafe", coordinates: { lat: 35.1380805, lng: 129.1132268 }, detourKm: 0, address: "부산광역시 수영구 남천동" },
+  { id: "cafe-starbucks-centum", name: "스타벅스 센텀점", kind: "cafe", coordinates: { lat: 35.1717074, lng: 129.1284077 }, detourKm: 0, address: "부산광역시 해운대구 센텀시티" },
+  { id: "cafe-starbucks-marine-city", name: "스타벅스 신세계마린시티점", kind: "cafe", coordinates: { lat: 35.1568982, lng: 129.1433168 }, detourKm: 0, address: "부산광역시 해운대구 마린시티" },
+  { id: "cafe-hollys-gwangalli", name: "할리스 광안해변점", kind: "cafe", coordinates: { lat: 35.1552364, lng: 129.1213852 }, detourKm: 0, address: "부산광역시 수영구 광안해변로" },
+  { id: "cafe-starbucks-gwangalli", name: "스타벅스 광안리점", kind: "cafe", coordinates: { lat: 35.1550296, lng: 129.1208566 }, detourKm: 0, address: "부산광역시 수영구 광안해변로" },
+  { id: "cafe-present", name: "프리젠트 카페", kind: "cafe", coordinates: { lat: 35.1484799, lng: 129.1076096 }, detourKm: 0, address: "부산광역시 수영구 남천동" },
+  { id: "cafe-ediya-pukyong", name: "이디야커피 부산부경대후문점", kind: "cafe", coordinates: { lat: 35.1388547, lng: 129.1047906 }, detourKm: 0, address: "부산광역시 남구 대연동" },
+  { id: "cafe-coffee-six-daeyeon", name: "커피식스 대연점", kind: "cafe", coordinates: { lat: 35.1379024, lng: 129.1028313 }, detourKm: 0, address: "부산광역시 남구 대연동" },
+  { id: "cafe-lacuna-matata", name: "라쿠나마타타", kind: "cafe", coordinates: { lat: 35.1360691, lng: 129.1001035 }, detourKm: 0, address: "부산광역시 남구 대연동" },
 ];
 
 export function distanceKm(a: Coordinates, b: Coordinates) {
@@ -158,7 +168,7 @@ export const mockTravelProvider: TravelProvider = {
       origin, destination, distanceKm: distance, durationMinutes: Math.max(4, Math.round(distance / 22 * 60)),
       path: [origin, midpoint, destination.coordinates],
       steps: [`${origin.label}에서 출발`, `${distance.toFixed(1)}km 동안 추천 경로로 이동`, `${destination.name.ko} 도착`],
-      facilities: routeFacilities(origin, destination.coordinates),
+      facilities: routeFacilities(origin, destination.coordinates), source: "mock",
     };
   },
   getMissions(origin) {

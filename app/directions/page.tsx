@@ -7,10 +7,12 @@ import { LocationConsentModal } from "../components/LocationConsentModal";
 import { TravelMap } from "../components/TravelMap";
 import { loadLocation, requestCurrentLocation, saveLocation } from "../location";
 import { mockTravelProvider } from "../providers/mock";
-import type { Place, UserLocation } from "../providers/types";
+import { createOsrmRoutingProvider } from "../providers/osrm";
+import type { Place, RouteResult, UserLocation } from "../providers/types";
 
 const facilityLabel = { toilet: "화장실", convenience: "편의점", cafe: "카페" };
 const facilityIcon = { toilet: "WC", convenience: "24", cafe: "☕" };
+const routingProvider = createOsrmRoutingProvider(mockTravelProvider);
 
 export default function DirectionsPage() {
   const searchParams = useSearchParams();
@@ -21,6 +23,9 @@ export default function DirectionsPage() {
   const [consentOpen, setConsentOpen] = useState(false);
   const [locationBusy, setLocationBusy] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [route, setRoute] = useState<RouteResult | null>(null);
+  const [routeState, setRouteState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [routeError, setRouteError] = useState("");
   const destinationId = searchParams.get("to");
 
   useEffect(() => {
@@ -31,9 +36,33 @@ export default function DirectionsPage() {
     return () => window.clearTimeout(timer);
   }, [destinationId]);
 
-  const route = useMemo(() => origin && destination ? mockTravelProvider.getRoute(origin, destination) : null, [origin, destination]);
   const originSuggestions = useMemo(() => originQuery.trim() ? mockTravelProvider.searchPlaces(originQuery).slice(0, 4) : [], [originQuery]);
   const destinationSuggestions = useMemo(() => destinationQuery.trim() ? mockTravelProvider.searchPlaces(destinationQuery).slice(0, 4) : [], [destinationQuery]);
+
+  useEffect(() => {
+    if (!origin || !destination) return;
+    const controller = new AbortController();
+    let active = true;
+    let timeout = 0;
+    const start = window.setTimeout(() => {
+      if (!active) return;
+      timeout = window.setTimeout(() => controller.abort(), 12000);
+      setRoute(null);
+      setRouteError("");
+      setRouteState("loading");
+      void routingProvider.getRoute(origin, destination, controller.signal).then((result) => {
+        if (!active) return;
+        setRoute(result);
+        setRouteState("ready");
+      }).catch((error: unknown) => {
+        if (!active) return;
+        if (controller.signal.aborted) setRouteError("도로 경로 조회 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.");
+        else setRouteError(error instanceof Error ? error.message : "도로 경로를 불러오지 못했습니다.");
+        setRouteState("error");
+      }).finally(() => window.clearTimeout(timeout));
+    }, 0);
+    return () => { active = false; window.clearTimeout(start); window.clearTimeout(timeout); controller.abort(); };
+  }, [origin, destination]);
 
   const useCurrentLocation = async () => {
     setLocationBusy(true);
@@ -76,11 +105,15 @@ export default function DirectionsPage() {
         <div className="route-field-block"><label htmlFor="route-destination">목적지</label><div className="route-field"><span className="route-dot end" /><input id="route-destination" value={destinationQuery} onChange={(event) => setDestinationQuery(event.target.value)} placeholder={destination?.name.ko ?? "장소 검색"} aria-label="목적지 검색" /></div>{destinationSuggestions.length > 0 && <div className="route-suggestions">{destinationSuggestions.map((place) => <button key={place.id} onClick={() => { setDestination(place); setDestinationQuery(""); }}><b>{place.name.ko}</b><small>{place.address}</small></button>)}</div>}</div>
       </section>
 
-      {route ? (
+      {routeState === "loading" ? (
+        <section className="route-empty" role="status"><span className="spinner" /><h2>실제 도로 경로를 찾고 있어요</h2><p>도로망을 따라 이동할 수 있는 경로와 예상 시간을 계산합니다.</p></section>
+      ) : routeState === "error" && origin && destination ? (
+        <section className="route-empty" role="alert"><span aria-hidden="true">!</span><h2>도로 경로를 불러오지 못했어요</h2><p>{routeError}<br />잘못된 직선 경로는 표시하지 않습니다.</p><a className="primary-button route-external" href={`https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${origin.lat}%2C${origin.lng}%3B${destination.coordinates.lat}%2C${destination.coordinates.lng}`} target="_blank" rel="noreferrer">OpenStreetMap에서 경로 확인</a></section>
+      ) : route ? (
         <section className="route-result">
           <div className="route-map-wrap"><TravelMap center={center} currentLocation={origin?.source === "geolocation" ? origin : null} route={route} facilities={route.facilities} /></div>
           <aside className="route-summary">
-            <p className="eyebrow">BEST ROUTE</p><h2>{route.destination.name.ko}</h2><div className="route-metrics"><div><small>거리</small><b>{route.distanceKm.toFixed(1)}km</b></div><div><small>예상 시간</small><b>약 {route.durationMinutes}분</b></div></div>
+            <p className="eyebrow">ROAD NETWORK ROUTE</p><h2>{route.destination.name.ko}</h2><p className="route-source">✓ OpenStreetMap 도로망을 따른 자동차 경로</p><div className="route-metrics"><div><small>거리</small><b>{route.distanceKm.toFixed(1)}km</b></div><div><small>예상 시간</small><b>약 {route.durationMinutes}분</b></div></div>
             <ol>{route.steps.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}</ol>
             <div className="facility-section"><h3>경로 주변 편의시설</h3>{route.facilities.map((facility) => <div className="facility-row" key={facility.id}><span>{facilityIcon[facility.kind]}</span><div><b>{facility.name}</b><small>{facilityLabel[facility.kind]}</small></div><em>+{facility.detourKm.toFixed(2)}km 우회</em></div>)}</div>
           </aside>
