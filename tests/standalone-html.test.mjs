@@ -127,6 +127,20 @@ test('mission photos require a 60 percent criteria match before awarding points'
   assert.doesNotMatch(html, /input\.onchange=\(\)=>\{if\(!input\.files\?\.\[0\]\)return;const next=/)
 })
 
+test('mission reset requires confirmation, preserves points, and enforces 24 hours', () => {
+  assert.match(html, /id="refreshLocation">⌖ 위치 새로 요청<\/button><button class="chip mission-reset-trigger" id="resetMissions">↻ 미션 초기화/)
+  assert.match(html, /role="alertdialog"/)
+  assert.match(html, /미션을 정말 초기화할까요\? 모은 포인트는 유지됩니다\. 24시간에 한 번만 할 수 있습니다/)
+  assert.match(html, /class="confirm-yes" id="confirmMissionReset"/)
+  assert.match(html, /class="confirm-no" id="cancelMissionReset">\$\{noLabel\}/)
+  assert.match(html, /yesLabel=\{ko:'예',en:'Yes'/)
+  assert.match(html, /noLabel=\{ko:'아니오',en:'No'/)
+  assert.match(html, /const missionResetInterval=24\*60\*60\*1000/)
+  assert.match(html, /eodissong:lastMissionReset/)
+  assert.match(html, /const preservedPoints=totalPoints\(\);saveCompleted\(\[\]\);saveTotalPoints\(preservedPoints\)/)
+  assert.match(html, /awardPoints\(p\.points\);\s+saveCompleted/)
+})
+
 test('standalone photo analysis ranks real image-dependent candidates in the browser', () => {
   assert.match(html, /@huggingface\/transformers@3\.8\.1/)
   assert.match(html, /zero-shot-image-classification/)
