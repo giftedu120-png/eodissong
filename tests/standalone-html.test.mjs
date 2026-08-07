@@ -65,15 +65,42 @@ test('home exposes AI mission and multi-stop course as steps 04 and 05', () => {
   assert.match(html, /href="#\/course">코스 설정 시작/)
 })
 
-test('course builder reuses precise origins and supports multiple destinations plus optional cafe', () => {
+test('course builder separates waypoints and final destination with exact-address search', () => {
   assert.match(html, /else if\(view==='course'\)renderCourse\(\)/)
   assert.match(html, /bindOriginEditor\('course'\)/)
-  assert.match(html, /state\.courseStops\.push\(place\)/)
+  assert.match(html, /courseDestination:null/)
+  assert.match(html, /state\.courseStops\.push\(\{\.\.\.place\}\)/)
+  assert.match(html, /id="stopAddressInput"/)
+  assert.match(html, /id="finalAddressInput"/)
+  assert.match(html, /bindCourseAddressSearch\('stop'\)/)
+  assert.match(html, /bindCourseAddressSearch\('final'\)/)
+  assert.match(html, /coursePointFromGeocode/)
   assert.match(html, /data-course-remove/)
   assert.match(html, /id="courseCafe" type="checkbox"/)
-  assert.match(html, /roadCourseRoute\(state\.location,routeStops\)/)
+  assert.match(html, /roadCourseRoute\(state\.location,optimizedStops\)/)
   assert.match(html, /route\/v1\/driving\/\$\{coordinates\}/)
-  assert.match(html, /routeStops\.splice\(insertAt,0,\{\.\.\.cafe,type:'cafe'/)
+})
+
+test('course builder optimizes waypoint order by road distance and keeps final destination last', () => {
+  assert.match(html, /table\/v1\/driving\/\$\{coordinates\}\?annotations=distance/)
+  assert.match(html, /function optimalWaypointOrder/)
+  assert.match(html, /async function optimizeCourseStops/)
+  assert.match(html, /\.\.\.order\.map\(index=>waypoints\[index\]\),\{\.\.\.destination,type:'destination'\}/)
+  assert.match(html, /최종 목적지는 마지막에 고정합니다/)
+  assert.match(html, /destination-stop/)
+})
+
+test('shortest-order optimizer can reorder waypoints while preserving the fixed end', () => {
+  const source = inlineScripts[0].match(/function optimalWaypointOrder[\s\S]*?return order}/)?.[0]
+  assert.ok(source)
+  const optimize = new Function(`${source};return optimalWaypointOrder`)()
+  const matrix = [
+    [0, 10, 1, 99],
+    [10, 0, 1, 1],
+    [1, 1, 0, 100],
+    [99, 1, 100, 0],
+  ]
+  assert.deepEqual(optimize(matrix, 2), [1, 0])
 })
 
 test('standalone directions use road geometry and never draw the old straight-line route', () => {
